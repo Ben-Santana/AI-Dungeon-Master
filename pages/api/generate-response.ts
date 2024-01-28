@@ -26,13 +26,13 @@ export default async function handler(
     }
 
 
-    const aiResult = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
         model: 'gpt-3.5-turbo',
         temperature: 0.7,
         max_tokens: 1000,
     });
 
-    const response = aiResult.choices[0].message.content || 'Sorry, there was a problem!';
+    const response = (completion.choices[0].message.content) || 'Sorry, there was a problem!';
     return res.status(200).json({ text: response });
 }
