@@ -14,11 +14,26 @@ function ChatInput() {
   )
 }
 
+//maybe put in types
+interface Message {
+  text: string,
+  owner: Adventurer //need to figure out what to do for GPT messages
+}
+
+function ChatMessage({ text, owner }: Message) {
+  return (
+    <div>
+
+    </div>
+  )
+}
+
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
   const [chats, setChat] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [party, setParty] = useState(["dm", ...adventurers]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
 
   return (
