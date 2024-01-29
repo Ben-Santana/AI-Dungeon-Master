@@ -6,10 +6,10 @@ export interface Adventurer {
     stats: Stats;
     hitPoints: HitPoints;
     vigor: Vigor;
-    spells: SpellsIndex;
-    abilities: Abilities;
+    spells?: SpellsIndex;
+    abilities?: Abilities;
     coins: Coins;
-    inventory: Item[];
+    inventory?: Item[];
 }
 
 export interface Stats {
