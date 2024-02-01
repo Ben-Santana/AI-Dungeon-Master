@@ -72,7 +72,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       }
 
     } catch (error) {
-      setErrorMsg("Error in calling API!");
+      setErrorMsg(`Error when calling API! : ${error}`);
     } finally {
       setLoading(false);
     }
