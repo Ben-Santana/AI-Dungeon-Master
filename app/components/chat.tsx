@@ -97,16 +97,16 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       </div>
       <div className="w-full">
         <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
-          <form onSubmit={submitText}>
+          <form className="w-full" onSubmit={submitText}>
             <input
-              className="w-full py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
+              className="w-4/5 py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
               type="text"
               placeholder="Embark"
               value={input}
               onChange={handleInputChange}
               disabled={loading}
             />
-            <input type="submit" />
+            <input className="w-1/5 h-4/5 bg-gray-100 text-center" type="submit" />
           </form>
         </div>
       </div>
