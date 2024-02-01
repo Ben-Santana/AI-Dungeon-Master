@@ -16,14 +16,14 @@ function ChatInput() {
 
 //maybe put in types
 interface Message {
-  text: string,
-  source: string //might need to change String to some DungeonMaster type / Adventurer type if needed
+  text: string;
+  source: string; //might need to change String to some DungeonMaster type / Adventurer type if needed
 }
 
 function ChatMessage({ text, source }: Message) {
   return (
-    <div>
-      <h1>{source}</h1>
+    <div className="rounded-lg bg-gray-100 p-3 m-3">
+      <strong>{source}</strong>
       <p>{text}</p>
     </div>
   )
@@ -32,61 +32,85 @@ function ChatMessage({ text, source }: Message) {
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
   const [chats, setChat] = useState("");
-  const [isLoading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [party, setParty] = useState(["dm", ...adventurers]);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInputText] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+
+    const myMessage: Message = {
+      text: input,
+      source: "player",
+    }
+
+    //add message to array
+    setMessages([...messages, myMessage]);
+
+    //reset input field
+    setInputText("");
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/generate-answer', {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: input
+        })
+      }).then((response) => response.json());
+
+      if (response.text) {
+        const botMessage: Message = {
+          text: response.text,
+          source: "bot"
+        }
+        setMessages([...messages, botMessage]);
+        setErrorMsg("");
+      }
+
+    } catch (error) {
+      setErrorMsg("Error in calling API!");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputText(e.target.value);
+  }
 
 
   //TESTING -----------------------
-
-
-  //setMessages([{ text: "asdasd", source: "asdasd" }])
 
   //-------------------------------
 
 
   return (
     <main className="relative bg-gray-200 max-w-2xl mx-auto h-full p-5 rounded-lg">
-      <div className="w-full h-96 border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto">
+      <div className="w-full h-96 border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
         {messages.map((msg: Message) => (
           <ChatMessage text={msg.text} source={msg.source} />
         ))}
-        <h1>Scroll down</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>-</h1>
-        <h1>Hello</h1>
       </div>
       <div className="w-full">
-        <ChatInput />
+        <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
+          <form onSubmit={submitText}>
+            <input
+              className="w-full py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
+              type="text"
+              placeholder="Embark"
+              value={input}
+              onChange={handleInputChange}
+              disabled={loading}
+            />
+            <input type="submit" />
+          </form>
+        </div>
       </div>
-    </main>
+      <p className="error"> {errorMsg} </p>
+    </main >
   );
 }
