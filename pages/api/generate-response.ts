@@ -1,11 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from 'openai';
-//export const config = { runtime: 'edge' }
-
-interface Memory {
-    role: string;
-    content: string;
-}
 
 type ResponseData = {
     text: string;
@@ -28,7 +22,6 @@ export default async function handler(
     const prompt = req.body.prompt;
 
     if (!prompt || prompt == '') {
-        console.log(prompt);
         return new Response('Please send your prompt', { status: 400 });
     }
 

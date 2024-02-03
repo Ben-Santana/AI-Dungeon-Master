@@ -5,7 +5,7 @@ export default function Home() {
     const players: Adventurer[] = [];
 
     return (
-        <div className="">
+        <div className="h-full w-full overflow:auto">
             <GameChat {...{ adventurers: players }}></GameChat>
         </div>
     );

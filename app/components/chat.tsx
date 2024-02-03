@@ -10,16 +10,31 @@ interface Message {
   key: number;
 }
 
-interface Memory {
-  role: string;
-  content: string;
-}
-
 function ChatMessage({ text, source }: Message) {
   return (
+    <div className="border border-black-300 shadow rounded-md p-4">
+  <div className="animate-pulse flex space-x-4">
+    <div className="rounded-full bg-slate-700 h-10 w-10"></div>
+    <div className="flex-1 space-y-6 py-1">
+      <div className="h-2 bg-slate-700 rounded"></div>
+      <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="h-2 bg-slate-700 rounded col-span-2"></div>
+          <div className="h-2 bg-slate-700 rounded col-span-1"></div>
+        </div>
+        <div className="h-2 bg-slate-700 rounded"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  )
+}
+
+const LoadingMessage = () => {
+  return (
     <div className="rounded-lg bg-gray-100 p-3 m-3">
-      <strong>{source}</strong>
-      <p>{text}</p>
+      <strong>Bot</strong>
+      <p>...</p>
     </div>
   )
 }
@@ -34,10 +49,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
   //
   const [party, setParty] = useState(["dm", ...adventurers]);
-  const [gptMemory, setGptMemory] = useState<Memory[]>([]);
 
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
-    //prevents default
+
     e.preventDefault();
 
     const myMessage: Message = {
@@ -46,10 +60,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       key: (messages.length + 1)
     }
 
-    //add message to array
     setMessages([...messages, myMessage]);
-
-    //reset input field
     setInputText("");
 
     //disable chat while waiting for api call
@@ -81,14 +92,6 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     } finally {
       setLoading(false);
     }
-
-    messages.map((msg: Message) => {
-      const newMemory: Memory = {
-        role: msg.source,
-        content: msg.text
-      }
-      setGptMemory([...gptMemory, newMemory])
-    });
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +100,17 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
 
   return (
-    <main className="relative bg-gray-200 max-w-2xl mx-auto h-full p-5 rounded-lg">
-      <div className="w-full h-96 border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
-        {messages.map((msg: Message) => (
-          <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
-        ))}
+    <main className="relative bg-gray-200 max-w-2xl m-5 mx-auto h-full p-5 rounded-lg">
+      <div className="w-full h-full border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+        {messages.map((msg: Message) =>
+        <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
+        )}
+
+            {loading
+              ? <LoadingMessage/>
+              : <></>
+            }
+
       </div>
       <div className="w-full">
         <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
@@ -114,7 +123,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
               onChange={handleInputChange}
               disabled={loading}
             />
-            <input className="w-1/5 h-4/5 bg-gray-100 text-center" type="submit" />
+            <input className="w-1/5 h-4/5 bg-gray-100 text-center hover:cursor-pointer" type="submit" />
           </form>
         </div>
       </div>
