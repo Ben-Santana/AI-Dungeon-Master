@@ -1,19 +1,7 @@
 'use client';
-export const config = { runtime: 'edge' }
 import { Adventurer } from "../../types/adventurer";
 import Image from "next/image";
 import { useState } from "react";
-
-function ChatInput() {
-  return (
-    <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
-      <input
-        className="w-full py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
-        type="text"
-        placeholder="Embark" />
-    </div>
-  )
-}
 
 //maybe put in types
 interface Message {
@@ -33,13 +21,18 @@ function ChatMessage({ text, source }: Message) {
 
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
-  const [chats, setChat] = useState("");
   const [loading, setLoading] = useState(false);
   const [party, setParty] = useState(["dm", ...adventurers]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [chatIndex, setChatIndex] = useState(0)
+
+  const newChatIndex = () => {
+    const tempKey = chatIndex;
+    setChatIndex(chatIndex + 1);
+    return tempKey;
+  }
 
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log(input)
@@ -48,10 +41,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     const myMessage: Message = {
       text: input,
       source: "player",
-      key: chatIndex + 1
+      key: newChatIndex()
     }
 
-    setChatIndex(chatIndex + 1)
     console.log(input)
     //add message to array
     setMessages([...messages, myMessage]);
@@ -63,6 +55,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     try {
       const response = await fetch('/api/generate-response', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           prompt: input
         })
@@ -72,10 +67,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
         const botMessage: Message = {
           text: response.text,
           source: "bot",
-          key: (chatIndex + 1)
+          key: newChatIndex()
         }
         setMessages([...messages, botMessage]);
-        setChatIndex(chatIndex + 1)
         setErrorMsg("");
       }
 
