@@ -1,6 +1,5 @@
 'use client';
 import { Adventurer } from "../../types/adventurer";
-import Image from "next/image";
 import { useState } from "react";
 
 //maybe put in types
@@ -32,7 +31,7 @@ function ChatMessage({ text, source }: Message) {
 
 const LoadingMessage = () => {
   return (
-    <div className="rounded-lg bg-gray-100 p-3 m-3">
+    <div className="rounded-lg bg-gray-100 p-3">
       <strong>Bot</strong>
       <p>...</p>
     </div>
@@ -100,8 +99,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
 
   return (
-    <main className="relative bg-gray-200 max-w-2xl m-5 mx-auto h-full p-5 rounded-lg">
-      <div className="w-full h-full border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+    <main className="h-full p-5 relative bg-gray-200 rounded-lg">
+      <div className="h-full grid grid-cols-1 grid-rows-12 grid-flow-col gap-3">
+      <div className="row-span-11 border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
         {messages.map((msg: Message) =>
         <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
         )}
@@ -112,22 +112,25 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
             }
 
       </div>
-      <div className="w-full">
-        <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
+      <div className="row-span-1">
+        <div className="h-full bg-white border-gray-300 border-2 p-2 rounded-lg flex">
           <form className="w-full" onSubmit={submitText}>
             <input
-              className="w-4/5 py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
+              className="h-full w-11/12 py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
               type="text"
               placeholder="Embark"
               value={input}
               onChange={handleInputChange}
               disabled={loading}
             />
-            <input className="w-1/5 h-4/5 bg-gray-100 text-center hover:cursor-pointer" type="submit" />
+            <label>
+            <input className="h-19 w-1/12 bg-gray-800 text-center hover:cursor-pointer bg-[url('../../public/svg/d20-dice.svg')]" type="submit" value="">
+            </input>
+            </label>
           </form>
         </div>
       </div>
-      <p className="error"> {errorMsg} </p>
+      </div>
     </main >
   );
 }
