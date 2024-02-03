@@ -27,17 +27,6 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  //keep track of message keys / index
-  const [chatIndex, setChatIndex] = useState(0)
-
-
-  //increment keys each time  
-  const newChatIndex = () => {
-    const tempKey = chatIndex;
-    setChatIndex(chatIndex + 1);
-    return tempKey;
-  }
-
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default
     e.preventDefault();
@@ -45,7 +34,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     const myMessage: Message = {
       text: input,
       source: "player",
-      key: newChatIndex()
+      key: (messages.length + 1)
     }
 
     //add message to array
@@ -72,9 +61,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
         const botMessage: Message = {
           text: response.text,
           source: "bot",
-          key: newChatIndex()
+          key: (messages.length + 2)
         }
-        setMessages([...messages, botMessage]);
+        setMessages([...messages, myMessage, botMessage]);
         setErrorMsg("");
       }
 
@@ -88,11 +77,6 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
   }
-
-
-  //TESTING -----------------------
-
-  //-------------------------------
 
 
   return (
