@@ -1,4 +1,5 @@
 'use client';
+export const config = { runtime: 'edge' }
 import { Adventurer } from "../../types/adventurer";
 import Image from "next/image";
 import { useState } from "react";
@@ -18,6 +19,7 @@ function ChatInput() {
 interface Message {
   text: string;
   source: string; //might need to change String to some DungeonMaster type / Adventurer type if needed
+  key: number;
 }
 
 function ChatMessage({ text, source }: Message) {
@@ -37,25 +39,29 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [chatIndex, setChatIndex] = useState(0)
 
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
-
+    console.log(input)
     e.preventDefault();
 
     const myMessage: Message = {
       text: input,
       source: "player",
+      key: chatIndex + 1
     }
 
+    setChatIndex(chatIndex + 1)
+    console.log(input)
     //add message to array
     setMessages([...messages, myMessage]);
 
     //reset input field
     setInputText("");
-
+    console.log(input)
     setLoading(true);
     try {
-      const response = await fetch('/api/generate-answer', {
+      const response = await fetch('/api/generate-response', {
         method: 'POST',
         body: JSON.stringify({
           prompt: input
@@ -65,9 +71,11 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       if (response.text) {
         const botMessage: Message = {
           text: response.text,
-          source: "bot"
+          source: "bot",
+          key: (chatIndex + 1)
         }
         setMessages([...messages, botMessage]);
+        setChatIndex(chatIndex + 1)
         setErrorMsg("");
       }
 
@@ -92,7 +100,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     <main className="relative bg-gray-200 max-w-2xl mx-auto h-full p-5 rounded-lg">
       <div className="w-full h-96 border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
         {messages.map((msg: Message) => (
-          <ChatMessage text={msg.text} source={msg.source} />
+          <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
         ))}
       </div>
       <div className="w-full">
