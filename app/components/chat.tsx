@@ -26,8 +26,12 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  //keep track of message keys / index
   const [chatIndex, setChatIndex] = useState(0)
 
+
+  //increment keys each time  
   const newChatIndex = () => {
     const tempKey = chatIndex;
     setChatIndex(chatIndex + 1);
@@ -35,7 +39,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   }
 
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log(input)
+    //prevents default
     e.preventDefault();
 
     const myMessage: Message = {
@@ -44,14 +48,15 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       key: newChatIndex()
     }
 
-    console.log(input)
     //add message to array
     setMessages([...messages, myMessage]);
 
     //reset input field
     setInputText("");
-    console.log(input)
+
+    //disable chat while waiting for api call
     setLoading(true);
+    //try for api call
     try {
       const response = await fetch('/api/generate-response', {
         method: 'POST',
