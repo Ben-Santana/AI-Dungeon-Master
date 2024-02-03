@@ -10,6 +10,11 @@ interface Message {
   key: number;
 }
 
+interface Memory {
+  role: string;
+  content: string;
+}
+
 function ChatMessage({ text, source }: Message) {
   return (
     <div className="rounded-lg bg-gray-100 p-3 m-3">
@@ -21,11 +26,15 @@ function ChatMessage({ text, source }: Message) {
 
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
+  //interface
   const [loading, setLoading] = useState(false);
-  const [party, setParty] = useState(["dm", ...adventurers]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  //
+  const [party, setParty] = useState(["dm", ...adventurers]);
+  const [gptMemory, setGptMemory] = useState<Memory[]>([]);
 
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default
@@ -72,6 +81,14 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     } finally {
       setLoading(false);
     }
+
+    messages.map((msg: Message) => {
+      const newMemory: Memory = {
+        role: msg.source,
+        content: msg.text
+      }
+      setGptMemory([...gptMemory, newMemory])
+    });
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

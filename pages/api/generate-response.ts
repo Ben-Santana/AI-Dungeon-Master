@@ -2,6 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from 'openai';
 //export const config = { runtime: 'edge' }
 
+interface Memory {
+    role: string;
+    content: string;
+}
+
 type ResponseData = {
     text: string;
 };
