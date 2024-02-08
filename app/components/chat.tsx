@@ -1,6 +1,5 @@
 'use client';
 import { Adventurer } from "../../types/adventurer";
-import Image from "next/image";
 import { useState } from "react";
 
 //maybe put in types
@@ -12,23 +11,46 @@ interface Message {
 
 function ChatMessage({ text, source }: Message) {
   return (
-    <div className="rounded-lg bg-gray-100 p-3 m-3">
+    <div className="border border-black-300 shadow rounded-md p-4 m-2">
       <strong>{source}</strong>
       <p>{text}</p>
     </div>
   )
 }
 
+const LoadingMessage = () => {
+  return (
+    <div className="border border-black-300 shadow rounded-md p-4">
+      <div className="animate-pulse flex space-x-4">
+        <div className="rounded-full bg-slate-700 h-10 w-10"></div>
+        <div className="flex-1 space-y-6 py-1">
+          <div className="h-2 bg-slate-700 rounded"></div>
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="h-2 bg-slate-700 rounded col-span-2"></div>
+              <div className="h-2 bg-slate-700 rounded col-span-1"></div>
+            </div>
+            <div className="h-2 bg-slate-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
+  //interface
   const [loading, setLoading] = useState(false);
-  const [party, setParty] = useState(["dm", ...adventurers]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  //
+  const [party, setParty] = useState(["dm", ...adventurers]);
+
   const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
-    //prevents default
+
     e.preventDefault();
 
     const myMessage: Message = {
@@ -37,10 +59,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       key: (messages.length + 1)
     }
 
-    //add message to array
     setMessages([...messages, myMessage]);
-
-    //reset input field
     setInputText("");
 
     //disable chat while waiting for api call
@@ -80,28 +99,38 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
 
   return (
-    <main className="relative bg-gray-200 max-w-2xl mx-auto h-full p-5 rounded-lg">
-      <div className="w-full h-96 border-gray-300 bg-white border-2 p-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
-        {messages.map((msg: Message) => (
-          <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
-        ))}
-      </div>
-      <div className="w-full">
-        <div className="bg-white border-gray-300 border-2 p-2 rounded-lg flex">
-          <form className="w-full" onSubmit={submitText}>
-            <input
-              className="w-4/5 py-2 px-2 text-gray-800 rounded-lg focus:outline-none"
-              type="text"
-              placeholder="Embark"
-              value={input}
-              onChange={handleInputChange}
-              disabled={loading}
-            />
-            <input className="w-1/5 h-4/5 bg-gray-100 text-center" type="submit" />
-          </form>
+    <main className="h-full p-5 relative bg-gray-200 rounded-lg">
+      <div className="h-full grid grid-cols-1 grid-rows-12 grid-flow-col gap-3">
+        <div className="row-span-11 border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+          {messages.map((msg: Message) =>
+            <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
+          )}
+
+          {loading
+            ? <LoadingMessage />
+            : <></>
+          }
+
+        </div>
+        <div className="row-span-1">
+          <div className="h-full bg-white border-gray-300 border-2 p-1 rounded-lg flex items-center">
+            <form className="w-full h-full flex items-center" onSubmit={submitText}>
+
+              <input
+                className="h-full w-11/12 text-gray-900 indent-3 rounded-lg focus:outline-none p-0 justify-self-center"
+                type="text"
+                placeholder="Embark"
+                value={input}
+                onChange={handleInputChange}
+                disabled={loading}
+              />
+
+              <input className="h-full w-1/12 text-center hover:cursor-pointer custom_submit-bg" type="submit" value="" />
+
+            </form>
+          </div>
         </div>
       </div>
-      <p className="error"> {errorMsg} </p>
     </main >
   );
 }
