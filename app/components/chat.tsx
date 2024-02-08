@@ -9,6 +9,12 @@ interface Message {
   key: number;
 }
 
+interface ChatHistory {
+  role: string;
+  source: string;
+}
+
+
 function ChatMessage({ text, source }: Message) {
   return (
     <div className="border border-black-300 shadow rounded-md p-4 m-2">
@@ -20,7 +26,7 @@ function ChatMessage({ text, source }: Message) {
 
 const LoadingMessage = () => {
   return (
-    <div className="border border-black-300 shadow rounded-md p-4">
+    <div className="border border-black-300 shadow rounded-md p-4 m-2">
       <div className="animate-pulse flex space-x-4">
         <div className="rounded-full bg-slate-700 h-10 w-10"></div>
         <div className="flex-1 space-y-6 py-1">

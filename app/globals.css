@@ -6,7 +6,7 @@
 
     background-image: url('../public/svg/dice-d20-svgrepo-com.svg');
     background-position: center;
-    background-size: 50%;
+    background-size: fit;
     /* Or any other size adjustments */
     background-repeat: no-repeat;
 }
