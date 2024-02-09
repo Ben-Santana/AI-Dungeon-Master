@@ -1,13 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from 'openai';
+import { useState } from "react";
+
 
 type ResponseData = {
     text: string;
 };
 
+interface Message {
+    role: "user" | "system" | "assistant";
+    content: string;
+}
+
 interface GenerateNextApiRequest extends NextApiRequest {
     body: {
-        prompt: string;
+        prompt: Message[];
     };
 }
 
@@ -21,13 +28,13 @@ export default async function handler(
 ) {
     const prompt = req.body.prompt;
 
-    if (!prompt || prompt == '') {
+    if (!prompt) {
         return new Response('Please send your prompt', { status: 400 });
     }
 
 
     const completion = await openai.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
+        messages: prompt,
         model: 'gpt-3.5-turbo',
         temperature: 1.0,
         max_tokens: 1000

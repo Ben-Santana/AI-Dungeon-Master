@@ -4,16 +4,22 @@ import { useState } from "react";
 
 //maybe put in types
 interface Message {
-  text: string;
-  source: string; //might need to change String to some DungeonMaster type / Adventurer type if needed
+  role: "user" | "system" | "assistant";
+  name: string,
+  content: string; //might need to change String to some DungeonMaster type / Adventurer type if needed
   key: number;
 }
 
-function ChatMessage({ text, source }: Message) {
+interface GptMessageMemory {
+  role: "user" | "system" | "assistant";
+  content: string;
+}
+
+function ChatMessage({ name, content }: Message) {
   return (
     <div className="border border-black-300 shadow rounded-md p-4 m-2">
-      <strong>{source}</strong>
-      <p>{text}</p>
+      <strong>{name}</strong>
+      <p>{content}</p>
     </div>
   )
 }
@@ -40,30 +46,47 @@ const LoadingMessage = () => {
 
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
 
+  //temporary system prompt
+  const systemPrompt = "You are William Shakespeare, write everything in the form of poems that are three to five lines long";
+
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [gptMessageMemories, setGptMessageMemories] = useState<GptMessageMemory[]>([{ role: "system", content: systemPrompt }]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
   //
   const [party, setParty] = useState(["dm", ...adventurers]);
 
-  const submitText = async (e: React.FormEvent<HTMLFormElement>) => {
+  const submitText = (e: React.FormEvent<HTMLFormElement>) => {
 
     e.preventDefault();
 
     const myMessage: Message = {
-      text: input,
-      source: "player",
+      content: input,
+      role: "user",
+      name: "Player 1",
       key: (messages.length + 1)
     }
 
-    setMessages([...messages, myMessage]);
+    const myMessageMemory: GptMessageMemory = {
+      role: "user",
+      content: input
+    }
+
     setInputText("");
+
+    setMessages([...messages, myMessage]);
+
+    callGptApi(myMessageMemory, myMessage);
+  }
+
+  const callGptApi = async (gptMsg: GptMessageMemory, chatMsg: Message) => {
 
     //disable chat while waiting for api call
     setLoading(true);
+
     //try for api call
     try {
       const response = await fetch('/api/generate-response', {
@@ -72,17 +95,27 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: input
+          prompt: [...gptMessageMemories, gptMsg]
         })
       }).then((response) => response.json());
 
       if (response.text) {
         const botMessage: Message = {
-          text: response.text,
-          source: "bot",
+          content: response.text,
+          role: "assistant",
+          name: "Dungeon Master",
           key: (messages.length + 2)
         }
-        setMessages([...messages, myMessage, botMessage]);
+
+        const botMessageMemory: GptMessageMemory = {
+          content: response.text,
+          role: "assistant",
+        }
+
+        //add bot messages to memory and chat history
+        setMessages([...messages, chatMsg, botMessage]);
+        let tempMemoryArray = messages.map(({ role, content }) => ({ role, content }));
+        setGptMessageMemories([...tempMemoryArray, gptMsg, botMessageMemory])
         setErrorMsg("");
       }
 
@@ -103,7 +136,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       <div className="h-full grid grid-cols-1 grid-rows-12 grid-flow-col gap-3">
         <div className="row-span-11 border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
           {messages.map((msg: Message) =>
-            <ChatMessage text={msg.text} source={msg.source} key={msg.key} />
+            <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
           )}
 
           {loading
