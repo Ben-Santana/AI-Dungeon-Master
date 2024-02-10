@@ -15,6 +15,10 @@ interface GptMessageMemory {
   content: string;
 }
 
+//temporary system prompt
+const systemPrompt = "Your name is Jarvis";
+let gptMessageMemories: GptMessageMemory[] = ([{ role: "system", content: systemPrompt }]);
+
 function ChatMessage({ name, content }: Message) {
   return (
     <div className="border border-black-300 shadow rounded-md p-4 m-2">
@@ -45,14 +49,9 @@ const LoadingMessage = () => {
 }
 
 export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
-
-  //temporary system prompt
-  const systemPrompt = "You are William Shakespeare, write everything in the form of poems that are three to five lines long";
-
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [gptMessageMemories, setGptMessageMemories] = useState<GptMessageMemory[]>([{ role: "system", content: systemPrompt }]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -63,29 +62,35 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
     e.preventDefault();
 
-    const myMessage: Message = {
+    const chatMsg: Message = {
       content: input,
       role: "user",
-      name: "Player 1",
+      name: "Player",
       key: (messages.length + 1)
     }
 
-    const myMessageMemory: GptMessageMemory = {
+    const chatMsgMemory: GptMessageMemory = {
       role: "user",
       content: input
     }
 
     setInputText("");
 
-    setMessages([...messages, myMessage]);
+    //add inputed message to chat screen / history
+    setMessages([...messages, chatMsg]);
 
-    callGptApi(myMessageMemory, myMessage);
+    //call api, input both types of msg
+    callGptApi(chatMsgMemory, chatMsg);
   }
 
-  const callGptApi = async (gptMsg: GptMessageMemory, chatMsg: Message) => {
+  const callGptApi = async (chatMsgMemory: GptMessageMemory, chatMsg: Message) => {
 
     //disable chat while waiting for api call
     setLoading(true);
+
+    //add
+    gptMessageMemories = ([...gptMessageMemories, chatMsgMemory])
+    console.log(gptMessageMemories);
 
     //try for api call
     try {
@@ -95,11 +100,12 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: [...gptMessageMemories, gptMsg]
+          prompt: gptMessageMemories
         })
       }).then((response) => response.json());
 
       if (response.text) {
+        //Message to add to chat history
         const botMessage: Message = {
           content: response.text,
           role: "assistant",
@@ -107,6 +113,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
           key: (messages.length + 2)
         }
 
+        //Message to add to GPT's memory
         const botMessageMemory: GptMessageMemory = {
           content: response.text,
           role: "assistant",
@@ -114,8 +121,9 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
         //add bot messages to memory and chat history
         setMessages([...messages, chatMsg, botMessage]);
-        let tempMemoryArray = messages.map(({ role, content }) => ({ role, content }));
-        setGptMessageMemories([...tempMemoryArray, gptMsg, botMessageMemory])
+        gptMessageMemories = ([...gptMessageMemories, botMessageMemory])
+        console.log(gptMessageMemories);
+
         setErrorMsg("");
       }
 
