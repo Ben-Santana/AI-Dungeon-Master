@@ -15,9 +15,108 @@ interface GptMessageMemory {
   content: string;
 }
 
+interface FormattedInput {
+  dialogue: playerInput[];
+  playerStats: Adventurer[];
+}
+
+interface playerInput {
+  player: string; ///could be an int
+  text: string
+}
+
 //temporary system prompt
-const systemPrompt = "Your name is Jarvis";
+const systemPrompt = `You are a Dungeon Master for a game of Dungeons and Dragons and your job is to write a unique story for the adventures to embark on. Your core job is to create an engaging campaign for the adventurers to have the opportunity to explore. You will adhere to the following set of rules:
+You will follow the rules of Dungeons and Dragons, however you will not use dice rolls and will make decisions on the success of each players turn based on their stats
+Every time a player sends a message, the message will come in the format of a JSON object:
+{
+	“dialogue” : [
+			{player: "player1's name", text:"player1's message"}
+       ]
+	“playerStats” : [{
+       		 name: "examplePlayerName1",
+      		  race: "Human",
+      		  class: "Knight",
+      		  level: 1,
+      		  stats: {
+   		         strength: 5,
+  		          dexterity: 5,
+  		          constitution: 5,
+  		          intelligence: 5,
+  		          wisdom: 5,
+  		          charisma: 5
+  		      },
+ 		       hitPoints: {
+ 		           maxHp: 20,
+            currentHp: 20
+ 		       },
+  		      vigor: {
+  		          armorClass: 5,
+  		          initiative: 5,
+ 		           speed: 5
+  		      },
+  		      coins: {
+ 		           gold: 5,
+  		          silver: 5,
+  		          copper: 5
+       		       }
+   	 	},
+		{
+			“name”: “examplePlayerName2”
+			//etc…
+		}]
+}
+
+You will always respond in the format of the following JSON file and from now on never respond with anything other than only a JSON object:
+{
+	“dialogue”: //your text response
+	“statChanges”: [
+		{
+			“name”: “examplePlayerName1”,
+			“changeInHeath”: 0,	
+      “changeInGold”: 0,
+      “itemsUsed”: [],
+      “newSpells”:	[
+	      {
+		      “name”: “name of spell”,
+		      “description”: “concise description of spell”,
+		      “castTime”: 1
+	      },
+	      {
+		      “name”: “name of spell”,
+		      “description”: “concise description of spell”,
+		      “castTime”: 2
+	      }
+      ]
+      “newItems”:[]
+    },
+    {
+			“name”: “examplePlayerName2”,
+			“changeInHeath”: 1,	
+      “changeInGold”: -1,	
+      “itemsUsed”: [{“name”: “name of item used”}],
+      “newSpells”:[],
+      “newItems”:[
+	    {
+		    “name”: “name of item”,
+		    “description”: “concise description of item”,
+		    “uses”: 5 //if uses are unlimited put -1
+      }
+      ]
+    }
+  ]
+}
+Always include all areas of the JSON file, which includes the statChanges for all players no matter what.
+All item and spell descriptions should be one short sentence.
+Don’t let players do anything that would be considered cheating or unfair. 
+If players attempt to use a spell or item they do not own, inform them that they cannot use that spell.
+`;
+
+
+
 let gptMessageMemories: GptMessageMemory[] = ([{ role: "system", content: systemPrompt }]);
+
+let totalInput: FormattedInput = ({ dialogue: [], playerStats: [] });
 
 function ChatMessage({ name, content }: Message) {
   return (
@@ -88,41 +187,39 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     //disable chat while waiting for api call
     setLoading(true);
 
-    //add
-    gptMessageMemories = ([...gptMessageMemories, chatMsgMemory])
-    console.log(gptMessageMemories);
+    setTotalInput(chatMsg.content);
 
     //try for api call
     try {
+      console.log(totalInput);
       const response = await fetch('/api/generate-response', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: gptMessageMemories
+          prompt: [...gptMessageMemories, { role: "user", content: JSON.stringify(totalInput) }]
         })
       }).then((response) => response.json());
 
       if (response.text) {
-        //Message to add to chat history
+        //Message for chat history / visual
         const botMessage: Message = {
-          content: response.text,
           role: "assistant",
+          content: response.text,
           name: "Dungeon Master",
           key: (messages.length + 2)
         }
 
-        //Message to add to GPT's memory
+        //Message for GPT's memory
         const botMessageMemory: GptMessageMemory = {
-          content: response.text,
           role: "assistant",
+          content: response.text
         }
 
         //add bot messages to memory and chat history
         setMessages([...messages, chatMsg, botMessage]);
-        gptMessageMemories = ([...gptMessageMemories, botMessageMemory])
-        console.log(gptMessageMemories);
+        gptMessageMemories = ([...gptMessageMemories, chatMsgMemory, botMessageMemory])
 
         setErrorMsg("");
       }
@@ -132,6 +229,14 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     } finally {
       setLoading(false);
     }
+  }
+
+  const setTotalInput = (chatInput: string) => {
+    totalInput.dialogue = [{ player: (adventurers[0].name), text: chatInput }];
+    totalInput.playerStats = adventurers;
+    // adventurers.forEach((a: Adventurer) => {
+    // for when we have multiple adventurers and messages
+    // });
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

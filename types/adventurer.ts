@@ -1,5 +1,5 @@
 export interface Adventurer {
-    name: String;
+    name: string;
     race: String;
     class: String;
     level: number;
