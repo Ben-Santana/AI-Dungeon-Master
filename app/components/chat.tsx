@@ -203,27 +203,34 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       }).then((response) => response.json());
 
       if (response.text) {
-        //Message for chat history / visual
-        const botMessage: Message = {
-          role: "assistant",
-          content: response.text,
-          name: "Dungeon Master",
-          key: (messages.length + 2)
+        try {
+          let parsedResponse = JSON.parse(response.text);
+          let dialogueResponse = parsedResponse.dialogue;
+          let statChangesResponse = parsedResponse.statChanges;
+
+
+          //Message for chat history / visual
+          const botMessage: Message = {
+            role: "assistant",
+            content: dialogueResponse,
+            name: "Dungeon Master",
+            key: (messages.length + 2)
+          }
+
+          //Message for GPT's memory
+          const botMessageMemory: GptMessageMemory = {
+            role: "assistant",
+            content: dialogueResponse
+          }
+
+          //add bot messages to memory and chat history
+          setMessages([...messages, chatMsg, botMessage]);
+          gptMessageMemories = ([...gptMessageMemories, chatMsgMemory, botMessageMemory])
+          setErrorMsg("");
+        } catch (error) {
+          setErrorMsg(`Error when parsing response! : ${error}`)
         }
-
-        //Message for GPT's memory
-        const botMessageMemory: GptMessageMemory = {
-          role: "assistant",
-          content: response.text
-        }
-
-        //add bot messages to memory and chat history
-        setMessages([...messages, chatMsg, botMessage]);
-        gptMessageMemories = ([...gptMessageMemories, chatMsgMemory, botMessageMemory])
-
-        setErrorMsg("");
       }
-
     } catch (error) {
       setErrorMsg(`Error when calling API! : ${error}`);
     } finally {
