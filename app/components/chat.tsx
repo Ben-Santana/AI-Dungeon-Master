@@ -1,5 +1,7 @@
 'use client';
 import { Adventurer } from "../../types/adventurer";
+import { Item } from "../../types/adventurer";
+import { Spell } from "../../types/adventurer";
 import { useState } from "react";
 
 //maybe put in types
@@ -25,13 +27,34 @@ interface playerInput {
   text: string
 }
 
+interface GptStatChanges {
+  "name": string,
+  "changeInHeath": number,
+  "changeInGold": number,
+  "changeInSilver": number,
+  "changeInCopper": number,
+  "itemsUsed": [{ 'name': string }],
+  "newSpells": [
+    {
+      "name": string,
+      "description": string,
+      "castTime": number //number of turns it takes to cast
+    }
+  ],
+  "newItems": [
+    {
+      "name": string,
+      "description": string,
+      "uses": number //Number or -1 for unlimited
+    }
+  ]
+}
 //temporary system prompt
-const systemPrompt = `You are a Dungeon Master for a game of Dungeons and Dragons and your job is to write a unique story for the adventures to embark on. Your core job is to create an engaging campaign for the adventurers to have the opportunity to explore. You will adhere to the following set of rules:
-You will follow the rules of Dungeons and Dragons, however you will not use dice rolls and will make decisions on the success of each players turn based on their stats
-Every time a player sends a message, the message will come in the format of a JSON object:
+const systemPrompt = `You are an AI Dungeon Master for a Dungeons & Dragons game. Your task is to narrate the game's progression, describe the outcomes of the players' actions, and manage the changes in game statistics such as health, gold, items, and spells. After each narrative or dialogue you provide, you must also update the game's statistics for each player in a structured JSON format. Remember to include changes in health, gold, items used, new spells, and new items, following the players' actions and the game's events. Every message the player sends will be formatted in the following manner, do NOT respond in this format, and only respond in the JSON format that I will provide below:
 {
 	“dialogue” : [
-			{player: "player1's name", text:"player1's message"}
+			“player": "examplePlayerName1",
+      "text": "players text"
        ]
 	“playerStats” : [{
        		 name: "examplePlayerName1",
@@ -59,57 +82,44 @@ Every time a player sends a message, the message will come in the format of a JS
  		           gold: 5,
   		          silver: 5,
   		          copper: 5
-       		       }
-   	 	},
-		{
-			“name”: “examplePlayerName2”
-			//etc…
-		}]
-}
-
-You will always respond in the format of the following JSON file and from now on never respond with anything other than only a JSON object:
-{
-	“dialogue”: //your text response
-	“statChanges”: [
-		{
-			“name”: “examplePlayerName1”,
-			“changeInHeath”: 0,	
-      “changeInGold”: 0,
-      “itemsUsed”: [],
-      “newSpells”:	[
-	      {
-		      “name”: “name of spell”,
-		      “description”: “concise description of spell”,
-		      “castTime”: 1
-	      },
-	      {
-		      “name”: “name of spell”,
-		      “description”: “concise description of spell”,
-		      “castTime”: 2
-	      }
-      ]
-      “newItems”:[]
-    },
-    {
-			“name”: “examplePlayerName2”,
-			“changeInHeath”: 1,	
-      “changeInGold”: -1,	
-      “itemsUsed”: [{“name”: “name of item used”}],
-      “newSpells”:[],
-      “newItems”:[
-	    {
-		    “name”: “name of item”,
-		    “description”: “concise description of item”,
-		    “uses”: 5 //if uses are unlimited put -1
-      }
-      ]
-    }
+       		  }
+   	 	}
   ]
 }
-Always include all areas of the JSON file, which includes the statChanges for all players no matter what.
-All item and spell descriptions should be one short sentence.
-Don’t let players do anything that would be considered cheating or unfair. 
-If players attempt to use a spell or item they do not own, inform them that they cannot use that spell.
+
+Your response to the players text should only be in "dialogue" in the following JSON structure and no where else:
+
+{
+"dialogue": 'Your text response describing the scenario, actions, and outcomes',
+"statChanges": [
+  {
+    "name": 'Player Name',
+    "changeInHeath": number,
+    "changeInGold": number,
+    "changeInSilver": number,
+    "changeInCopper": number,
+    "itemsUsed": [{'name': string}],
+    "newSpells": [
+      {
+        "name": 'Spell Name',
+        "description": 'Concise Description',
+        "castTime": 1 //number of turns it takes to cast
+      }
+    ],
+    "newItems": [
+      {
+        "name": 'Item Name',
+        "description": 'Concise Description',
+        "uses": 2 //Number or -1 for unlimited
+      }
+    ]
+  }
+]
+}
+ONLY respond in the provided JSON format and don't respond in any other way. Do not write anything outside the JSON object.
+Please narrate the next part of the adventure, focusing on the outcome of the players' actions, and update their stats accordingly in the given JSON format.
+Follow the JSON format no matter what and do not respond with anything else or in any other manner.
+When players find coins, or a pouch of coins, never state it as an item, only add the amount to changeInGold, changeInSilver and changeInCopper
 `;
 
 
@@ -191,6 +201,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
     //try for api call
     try {
+      console.log("Input:---------")
       console.log(totalInput);
       const response = await fetch('/api/generate-response', {
         method: 'POST',
@@ -203,11 +214,14 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
       }).then((response) => response.json());
 
       if (response.text) {
+        console.log("Response:--------");
+        console.log(response.text);
         try {
           let parsedResponse = JSON.parse(response.text);
           let dialogueResponse = parsedResponse.dialogue;
           let statChangesResponse = parsedResponse.statChanges;
 
+          updatePlayerStats(JSON.stringify(parsedResponse.statChanges));
 
           //Message for chat history / visual
           const botMessage: Message = {
@@ -220,7 +234,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
           //Message for GPT's memory
           const botMessageMemory: GptMessageMemory = {
             role: "assistant",
-            content: dialogueResponse
+            content: response.text
           }
 
           //add bot messages to memory and chat history
@@ -250,6 +264,36 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     setInputText(e.target.value);
   }
 
+  const updatePlayerStats = (statChanges: string) => {
+    try {
+      let parsedStatChanges = JSON.parse(statChanges);
+      parsedStatChanges.forEach((stats: GptStatChanges) => {
+        adventurers.forEach((advent: Adventurer) => {
+          if (stats.name == (advent.name)) {
+            advent.coins.gold += stats.changeInGold;
+            advent.coins.silver += stats.changeInSilver;
+            advent.coins.copper += stats.changeInCopper;
+            stats.itemsUsed.forEach((itemUsed: { "name": string }) => {
+              advent.inventory.forEach((item: Item) => {
+                if (item.uses > 0 && itemUsed.name == item.name) {
+                  item.uses--;
+                  advent.inventory = advent.inventory.filter(item => item.uses > 0)
+                }
+              });
+            })
+            stats.newItems.forEach((newItem: Item) => {
+              advent.inventory.push(newItem)
+            });
+            stats.newSpells.forEach((newSpell: Spell) => {
+              advent.spells.push(newSpell);
+            });
+          }
+        });
+      });
+    } catch (error) {
+      setErrorMsg(`Error when parsing player stats!`)
+    }
+  }
 
   return (
     <main className="h-full p-5 relative bg-gray-200 rounded-lg">
@@ -281,6 +325,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
               <input className="h-full w-1/12 text-center hover:cursor-pointer custom_submit-bg" type="submit" value="" />
 
             </form>
+            <p>{errorMsg}</p>
           </div>
         </div>
       </div>

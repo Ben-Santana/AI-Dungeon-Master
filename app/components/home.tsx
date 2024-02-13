@@ -28,7 +28,10 @@ export default function Home() {
             gold: 5,
             silver: 5,
             copper: 5
-        }
+        },
+        inventory: [{ name: "Steel sword", description: "Strong and adorned sword given to me by the queen of Eldoria", uses: -1 }],
+        abilities: [],
+        spells: [{ name: "Heal", description: "Heals for 10 points of health", castTime: 1 }]
     }];
 
     return (
