@@ -2,7 +2,8 @@
 import { Adventurer } from "../../types/adventurer";
 import { Item } from "../../types/adventurer";
 import { Spell } from "../../types/adventurer";
-import { useState } from "react";
+import { memo, useState } from "react";
+import GPT3Tokenizer from 'gpt3-tokenizer';
 
 //maybe put in types
 interface Message {
@@ -20,6 +21,7 @@ interface GptMessageMemory {
 interface FormattedInput {
   dialogue: playerInput[];
   playerStats: Adventurer[];
+  d20: number;
 }
 
 interface playerInput {
@@ -50,7 +52,7 @@ interface GptStatChanges {
   ]
 }
 //temporary system prompt
-const systemPrompt = `You are an AI Dungeon Master for a Dungeons & Dragons game. Your task is to narrate the game's progression, describe the outcomes of the players' actions, and manage the changes in game statistics such as health, gold, items, and spells. After each narrative or dialogue you provide, you must also update the game's statistics for each player in a structured JSON format. Remember to include changes in health, gold, items used, new spells, and new items, following the players' actions and the game's events. Every message the player sends will be formatted in the following manner, do NOT respond in this format, and only respond in the JSON format that I will provide below:
+const systemPrompt = `You are a well-spoken and descriptive Dungeon Master for a Dungeons & Dragons game. Your task is to write the game's story and progression, as well as describe the outcomes of the players' actions. After each narrative or dialogue you provide, you must also update the game's statistics for each player in a structured JSON format. Remember to include changes in health, gold, items used, new spells, and new items, following the players' actions and the game's events. Every message the player sends will be formatted in the following manner, do NOT respond in this format, and only respond in the JSON format that I will provide below:
 {
 	“dialogue” : [
 			“player": "examplePlayerName1",
@@ -84,7 +86,8 @@ const systemPrompt = `You are an AI Dungeon Master for a Dungeons & Dragons game
   		          copper: 5
        		  }
    	 	}
-  ]
+  ],
+  d20: number // what the player rolled on their d20 dice. You must never ask the player to roll d20 or any dice, just use this number if needed.
 }
 
 Your response to the players text should only be in "dialogue" in the following JSON structure and no where else:
@@ -122,11 +125,13 @@ Follow the JSON format no matter what and do not respond with anything else or i
 When players find coins, or a pouch of coins, never state it as an item, only add the amount to changeInGold, changeInSilver and changeInCopper
 `;
 
-
+const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+let totalTokens = 0;
+let memoryTokens = 0;
 
 let gptMessageMemories: GptMessageMemory[] = ([{ role: "system", content: systemPrompt }]);
 
-let totalInput: FormattedInput = ({ dialogue: [], playerStats: [] });
+let totalInput: FormattedInput = ({ dialogue: [], playerStats: [], d20: 1 });
 
 function ChatMessage({ name, content }: Message) {
   return (
@@ -157,7 +162,7 @@ const LoadingMessage = () => {
   )
 }
 
-export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
+export default function GameChat({ adventurers, setPlayers }: { adventurers: Adventurer[], setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>> }) {
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -165,7 +170,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const [errorMsg, setErrorMsg] = useState("");
 
   //
-  const [party, setParty] = useState(["dm", ...adventurers]);
+  const [party, setParty] = useState(adventurers);
 
   const submitText = (e: React.FormEvent<HTMLFormElement>) => {
 
@@ -201,8 +206,13 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
 
     //try for api call
     try {
-      console.log("Input:---------")
+      //print out what we are inputting into chatGPT
+      console.log("Input:==================")
       console.log(totalInput);
+
+      console.log(totalTokens);
+
+      //call api and wait for response
       const response = await fetch('/api/generate-response', {
         method: 'POST',
         headers: {
@@ -213,15 +223,21 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
         })
       }).then((response) => response.json());
 
+      //if response is valid...
       if (response.text) {
-        console.log("Response:--------");
+        //print it out
+        console.log("Response:==================");
         console.log(response.text);
+
+        //attempt to parse
         try {
           let parsedResponse = JSON.parse(response.text);
           let dialogueResponse = parsedResponse.dialogue;
-          let statChangesResponse = parsedResponse.statChanges;
 
-          updatePlayerStats(JSON.stringify(parsedResponse.statChanges));
+          if (parsedResponse.statChanges) {
+            console.log(`Stat Changes: ${JSON.stringify(parsedResponse.statChanges)}`);
+            updatePlayerStats(JSON.stringify(parsedResponse.statChanges));
+          }
 
           //Message for chat history / visual
           const botMessage: Message = {
@@ -241,6 +257,19 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
           setMessages([...messages, chatMsg, botMessage]);
           gptMessageMemories = ([...gptMessageMemories, chatMsgMemory, botMessageMemory])
           setErrorMsg("");
+
+          //set memoryTokens to number of tokens in gptMessageMemories
+          memoryTokens = 0;
+          gptMessageMemories.map((msg: GptMessageMemory) => {
+            const encoded: { bpe: number[]; text: string[] } = tokenizer.encode(msg.content);
+            memoryTokens += encoded.text.length;
+          });
+
+          totalTokens += memoryTokens + totalTokens;
+          console.log("Total tokens used:==================");
+          console.log(totalTokens);
+
+
         } catch (error) {
           setErrorMsg(`Error when parsing response! : ${error}`)
         }
@@ -255,9 +284,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   const setTotalInput = (chatInput: string) => {
     totalInput.dialogue = [{ player: (adventurers[0].name), text: chatInput }];
     totalInput.playerStats = adventurers;
-    // adventurers.forEach((a: Adventurer) => {
-    // for when we have multiple adventurers and messages
-    // });
+    totalInput.d20 = Math.floor(Math.random() * 20) + 1
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,33 +292,64 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
   }
 
   const updatePlayerStats = (statChanges: string) => {
+    let updatedAdventurers: Adventurer[] = [];
     try {
       let parsedStatChanges = JSON.parse(statChanges);
       parsedStatChanges.forEach((stats: GptStatChanges) => {
         adventurers.forEach((advent: Adventurer) => {
-          if (stats.name == (advent.name)) {
-            advent.coins.gold += stats.changeInGold;
-            advent.coins.silver += stats.changeInSilver;
-            advent.coins.copper += stats.changeInCopper;
+          //check to see that stat changes and player name match
+          if (stats.name == advent.name) {
+
+            //check if there were any changes to array properties, if there were create replacements
+            let newPlayerItems = [...advent.inventory];
+            let newPlayerSpells: Spell[] = [...advent.spells];
+            if (stats.newSpells) {
+              if (stats.newSpells.length == 1) {
+                newPlayerSpells = [...advent.spells, stats.newSpells[0]];
+              } else {
+                newPlayerSpells = [...advent.spells, ...stats.newSpells];
+              }
+            }
+            if (stats.newItems) {
+              if (stats.newItems.length == 1) {
+                newPlayerItems = [...advent.inventory, stats.newItems[0]];
+              } else {
+                newPlayerItems = [...advent.inventory, ...stats.newItems];
+              }
+            }
+
+            let updatedPlayer: Adventurer = {
+              ...advent,
+              coins: {
+                gold: advent.coins.gold + stats.changeInGold,
+                silver: advent.coins.silver + stats.changeInSilver,
+                copper: advent.coins.copper += stats.changeInCopper
+              },
+              spells: [...newPlayerSpells],
+              inventory: [...newPlayerItems]
+            }
             stats.itemsUsed.forEach((itemUsed: { "name": string }) => {
-              advent.inventory.forEach((item: Item) => {
+              updatedPlayer.inventory.forEach((item: Item) => {
                 if (item.uses > 0 && itemUsed.name == item.name) {
                   item.uses--;
-                  advent.inventory = advent.inventory.filter(item => item.uses > 0)
+                  updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses > 0)
                 }
               });
             })
-            stats.newItems.forEach((newItem: Item) => {
-              advent.inventory.push(newItem)
-            });
-            stats.newSpells.forEach((newSpell: Spell) => {
-              advent.spells.push(newSpell);
-            });
+            console.log(updatedPlayer);
+            updatedAdventurers.push(updatedPlayer);
+
+            console.log("Updated Adventurers:=================")
+            console.log(updatedAdventurers)
+            setPlayers(updatedAdventurers);
+          } else {
+            console.log("NO MATCH");
           }
         });
       });
     } catch (error) {
-      setErrorMsg(`Error when parsing player stats!`)
+      setErrorMsg(`Error when parsing player stats!`);
+      console.log(error);
     }
   }
 

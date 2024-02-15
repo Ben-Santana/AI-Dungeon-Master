@@ -16,11 +16,13 @@
     src: url('../public/fonts/witcherKnight.ttf') format("truetype");
     font-style: normal;
 }
+
 @font-face {
     font-family: "breathFire";
     src: url('../public/fonts/breathFire.ttf') format("truetype");
     font-style: normal;
 }
+
 @font-face {
     font-family: "wonderWorld";
     src: url('../public/fonts/wonderWorld.otf') format("otf");
@@ -29,4 +31,12 @@
 
 body {
     font-family: witcher;
+}
+
+.custom_bg-light-beige {
+    background-color: rgb(153, 127, 105);
+}
+
+.custom_bg-beige {
+    background-color: rgb(109, 80, 57);
 }

@@ -1,9 +1,11 @@
+'use client';
 import { Adventurer, Spell } from "@/types/adventurer";
 import GameChat from "./chat";
+import { memo, useState } from "react";
 
 export default function Home() {
-    const players: Adventurer[] = [{
-        name: "Ben",
+    const [players, setPlayers] = useState<Adventurer[]>([{
+        name: "Sir Gawain",
         race: "Human",
         class: "Knight",
         level: 1,
@@ -29,14 +31,14 @@ export default function Home() {
             silver: 5,
             copper: 5
         },
-        inventory: [{ name: "Steel sword", description: "Strong and adorned sword given to me by the queen of Eldoria", uses: -1 }],
+        inventory: [{ name: "Green steel sword", description: "Strong and adorned sword given to me by the queen of Eldoria", uses: -1 }],
         abilities: [],
         spells: [{ name: "Heal", description: "Heals for 10 points of health", castTime: 1 }]
-    }];
+    }]);
 
     return (
         <div className="h-full flex flex-row">
-            <div className="basis-1/4 bg-gray-800">
+            <div className="basis-1/4 custom_bg-beige p-3">
                 {players[0].spells.map((spell: Spell) =>
                     <div>
                         <h1 className="text-white text-base">{spell.name}</h1>
@@ -44,8 +46,8 @@ export default function Home() {
                     </div>
                 )}
             </div>
-            <div className="basis-3/4 bg-gray-700 px-12 py-6">
-                <GameChat {...{ adventurers: players }}></GameChat>
+            <div className="basis-3/4 px-12 py-6 custom_bg-light-beige">
+                <GameChat adventurers={players} setPlayers={setPlayers} ></GameChat>
             </div>
         </div>
     );
