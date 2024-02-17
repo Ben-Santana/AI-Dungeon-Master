@@ -1,8 +1,8 @@
 'use client';
 import { Adventurer, Spell } from "@/types/adventurer";
-import GameChat from "./chat";
+import GameChat from "./gpt/chat";
 import { memo, useState } from "react";
-import SideBar from "./sidebar";
+import SideBar from "./stats/sidebar";
 
 export default function Home() {
     const [players, setPlayers] = useState<Adventurer[]>([{
