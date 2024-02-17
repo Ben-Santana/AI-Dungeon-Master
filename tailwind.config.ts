@@ -13,14 +13,13 @@ const config: Config = {
       lg: '976px',
       xl: '1440px',
     },
-    fontFamily: {
-      sans: ['Graphik', 'sans-serif'],
-      serif: ['Merriweather', 'serif'],
-    },
     extend: {
       spacing: {
         '128': '32rem',
         '144': '36rem',
+      },
+      fontFamily: {
+        sans: ['witcher', 'sans'],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
