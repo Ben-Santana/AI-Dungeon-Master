@@ -86,7 +86,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
   return (
     <main className="h-full p-5 relative bg-gray-200 rounded-lg">
       <div className="h-full flex flex-wrap flex-col gap-3">
-        <div className="flex-auto border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+        <div className="basis-11/12 border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
           {messages.map((msg: Message) =>
             <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
           )}
@@ -96,7 +96,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
           }
 
         </div>
-          <div className="h-full max-h-20 bg-white border-gray-300 border-2 p-1 rounded-lg flex items-center">
+          <div className="basis-1/12 h-full max-h-20 bg-white border-gray-300 border-2 p-1 rounded-lg flex items-center">
             <form className="w-full h-full flex items-center" onSubmit={submitText}>
 
               <textarea
