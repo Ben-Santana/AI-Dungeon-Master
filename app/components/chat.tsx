@@ -336,7 +336,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
       });
     } catch (error) {
       setErrorMsg(`Error when parsing player stats!`);
-      console.log(error);
+
     }
   }
 

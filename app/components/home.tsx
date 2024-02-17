@@ -2,6 +2,7 @@
 import { Adventurer, Spell } from "@/types/adventurer";
 import GameChat from "./chat";
 import { memo, useState } from "react";
+import SideBar from "./sidebar";
 
 export default function Home() {
     const [players, setPlayers] = useState<Adventurer[]>([{
@@ -39,12 +40,7 @@ export default function Home() {
     return (
         <div className="h-full flex flex-row">
             <div className="basis-1/4 custom_bg-beige p-3">
-                {players[0].spells.map((spell: Spell) =>
-                    <div>
-                        <h1 className="text-white text-base">{spell.name}</h1>
-                        <p className="text-white indent-3 text-sm">{spell.description}</p>
-                    </div>
-                )}
+                <SideBar players={players}></SideBar>
             </div>
             <div className="basis-3/4 px-12 py-6 custom_bg-light-beige">
                 <GameChat adventurers={players} setPlayers={setPlayers} ></GameChat>
