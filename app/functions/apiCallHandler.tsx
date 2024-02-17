@@ -3,7 +3,7 @@ import { useState } from "react";
 import { updatePlayerStats } from "./playerStatsHandler";
 import { Adventurer } from "@/types/adventurer";
 import { updateTokenCount } from "./tokenCountHandler";
-import { FormattedInput } from "../components/chat";
+import { FormattedInput } from "../components/gpt/chat";
 
 interface Message {
     role: "user" | "system" | "assistant";
