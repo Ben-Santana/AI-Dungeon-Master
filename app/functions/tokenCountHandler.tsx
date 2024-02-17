@@ -3,7 +3,7 @@ import { GptMessageMemory, gptMessageMemories } from './gptMemoryHandler';
 
 const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
 //total amount of tokens used
-let totalTokens = 0;
+export let totalTokens = 0;
 //current amount of tokens in gpts memory
 let memoryTokens = 0;
 

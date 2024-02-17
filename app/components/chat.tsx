@@ -8,6 +8,7 @@ import { updatePlayerStats } from '../functions/playerStatsHandler'
 import { addToGptMemory } from "../functions/gptMemoryHandler";
 import { gptMessageMemories } from "../functions/gptMemoryHandler";
 import { callGptApi } from "../functions/apiCallHandler";
+import { totalTokens } from "../functions/tokenCountHandler";
 
 interface Message {
   role: "user" | "system" | "assistant";
@@ -111,7 +112,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
               <input
                 className="h-full w-11/12 text-gray-900 indent-3 rounded-lg focus:outline-none p-0 justify-self-center"
                 type="text"
-                placeholder="Embark"
+                placeholder={`Embark${totalTokens}`}
                 value={input}
                 onChange={handleInputChange}
                 disabled={loading}
