@@ -1,8 +1,10 @@
 'use client';
 import { Adventurer } from "../../types/adventurer";
-import { useState } from "react";
+import { Item } from "../../types/adventurer";
+import { Spell } from "../../types/adventurer";
+import { memo, useState } from "react";
+import GPT3Tokenizer from 'gpt3-tokenizer';
 
-//maybe put in types
 interface Message {
   role: "user" | "system" | "assistant";
   name: string,
@@ -14,6 +16,124 @@ interface GptMessageMemory {
   role: "user" | "system" | "assistant";
   content: string;
 }
+
+interface FormattedInput {
+  dialogue: playerInput[];
+  playerStats: Adventurer[];
+  d20: number;
+}
+
+interface playerInput {
+  player: string; ///could be an int
+  text: string
+}
+
+interface GptStatChanges {
+  "name": string,
+  "changeInHeath": number,
+  "changeInGold": number,
+  "changeInSilver": number,
+  "changeInCopper": number,
+  "itemsUsed": [{ 'name': string }],
+  "newSpells": [
+    {
+      "name": string,
+      "description": string,
+      "castTime": number //number of turns it takes to cast
+    }
+  ],
+  "newItems": [
+    {
+      "name": string,
+      "description": string,
+      "uses": number //Number or -1 for unlimited
+    }
+  ]
+}
+
+const systemPrompt = `You are a well-spoken and descriptive Dungeon Master for a Dungeons & Dragons game. Your task is to write the game's story and progression, as well as describe the outcomes of the players' actions. After each narrative or dialogue you provide, you must also update the game's statistics for each player in a structured JSON format. Remember to include changes in health, gold, items used, new spells, and new items, following the players' actions and the game's events. Every message the player sends will be formatted in the following manner, do NOT respond in this format, and only respond in the JSON format that I will provide below:
+{
+	“dialogue” : [
+			“player": "examplePlayerName1",
+      "text": "players text"
+       ]
+	“playerStats” : [{
+       		 name: "examplePlayerName1",
+      		  race: "Human",
+      		  class: "Knight",
+      		  level: 1,
+      		  stats: {
+   		         strength: 5,
+  		          dexterity: 5,
+  		          constitution: 5,
+  		          intelligence: 5,
+  		          wisdom: 5,
+  		          charisma: 5
+  		      },
+ 		       hitPoints: {
+ 		           maxHp: 20,
+            currentHp: 20
+ 		       },
+  		      vigor: {
+  		          armorClass: 5,
+  		          initiative: 5,
+ 		           speed: 5
+  		      },
+  		      coins: {
+ 		           gold: 5,
+  		          silver: 5,
+  		          copper: 5
+       		  }
+   	 	}
+  ],
+  d20: number // what the player rolled on their d20 dice. You must never ask the player to roll d20 or any dice, just use this number if needed.
+}
+
+Your response to the players text should only be in "dialogue" in the following JSON structure and no where else:
+
+{
+"dialogue": 'Your text response describing the scenario, actions, and outcomes',
+"statChanges": [
+  {
+    "name": 'Player Name',
+    "changeInHeath": number,
+    "changeInGold": number,
+    "changeInSilver": number,
+    "changeInCopper": number,
+    "itemsUsed": [{'name': string}],
+    "newSpells": [
+      {
+        "name": 'Spell Name',
+        "description": 'Concise Description',
+        "castTime": 1 //number of turns it takes to cast
+      }
+    ],
+    "newItems": [
+      {
+        "name": 'Item Name',
+        "description": 'Concise Description',
+        "uses": 2 //Number or -1 for unlimited
+      }
+    ]
+  }
+]
+}
+ONLY respond in the provided JSON format and don't respond in any other way. Do not write anything outside the JSON object.
+Please narrate the next part of the adventure, focusing on the outcome of the players' actions, and update their stats accordingly in the given JSON format.
+Follow the JSON format no matter what and do not respond with anything else or in any other manner.
+When players find coins, or a pouch of coins, never state it as an item, only add the amount to changeInGold, changeInSilver and changeInCopper
+`;
+
+const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+//total amount of tokens used
+let totalTokens = 0;
+//total tokens in gpts memory
+let memoryTokens = 0;
+
+//context for gpt
+let gptMessageMemories: GptMessageMemory[] = ([{ role: "system", content: systemPrompt }]);
+
+let totalInput: FormattedInput = ({ dialogue: [], playerStats: [], d20: 1 });
 
 function ChatMessage({ name, content }: Message) {
   return (
@@ -44,81 +164,109 @@ const LoadingMessage = () => {
   )
 }
 
-export default function GameChat({ adventurers }: { adventurers: Adventurer[] }) {
-
-  //temporary system prompt
-  const systemPrompt = "You are William Shakespeare, write everything in the form of poems that are three to five lines long";
-
+export default function GameChat({ adventurers, setPlayers }: { adventurers: Adventurer[], setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>> }) {
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [gptMessageMemories, setGptMessageMemories] = useState<GptMessageMemory[]>([{ role: "system", content: systemPrompt }]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
   //
-  const [party, setParty] = useState(["dm", ...adventurers]);
+  const [party, setParty] = useState(adventurers);
 
   const submitText = (e: React.FormEvent<HTMLFormElement>) => {
 
     e.preventDefault();
 
-    const myMessage: Message = {
+    const chatMsg: Message = {
       content: input,
       role: "user",
-      name: "Player 1",
+      name: "Player",
       key: (messages.length + 1)
     }
 
-    const myMessageMemory: GptMessageMemory = {
+    const chatMsgMemory: GptMessageMemory = {
       role: "user",
       content: input
     }
 
     setInputText("");
 
-    setMessages([...messages, myMessage]);
+    //add inputed message to chat screen / history
+    setMessages([...messages, chatMsg]);
 
-    callGptApi(myMessageMemory, myMessage);
+    //call api, input both types of msg
+    callGptApi(chatMsgMemory, chatMsg);
   }
 
-  const callGptApi = async (gptMsg: GptMessageMemory, chatMsg: Message) => {
+  const callGptApi = async (chatMsgMemory: GptMessageMemory, chatMsg: Message) => {
 
     //disable chat while waiting for api call
     setLoading(true);
 
+    //
+    setTotalInput(chatMsg.content);
+
     //try for api call
     try {
+      //call api and wait for response
       const response = await fetch('/api/generate-response', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: [...gptMessageMemories, gptMsg]
+          prompt: [...gptMessageMemories, { role: "user", content: JSON.stringify(totalInput) }]
         })
       }).then((response) => response.json());
 
       if (response.text) {
-        const botMessage: Message = {
-          content: response.text,
-          role: "assistant",
-          name: "Dungeon Master",
-          key: (messages.length + 2)
-        }
+        //attempt to parse
+        try {
+          let parsedResponse = JSON.parse(response.text);
+          let dialogueResponse = parsedResponse.dialogue;
 
-        const botMessageMemory: GptMessageMemory = {
-          content: response.text,
-          role: "assistant",
-        }
+          //if there are any stat changes, update player stats
+          if (parsedResponse.statChanges) {
+            updatePlayerStats(JSON.stringify(parsedResponse.statChanges));
+          }
 
-        //add bot messages to memory and chat history
-        setMessages([...messages, chatMsg, botMessage]);
-        let tempMemoryArray = messages.map(({ role, content }) => ({ role, content }));
-        setGptMessageMemories([...tempMemoryArray, gptMsg, botMessageMemory])
-        setErrorMsg("");
+          //Message for chat history / visual
+          const botMessage: Message = {
+            role: "assistant",
+            content: dialogueResponse,
+            name: "Dungeon Master",
+            key: (messages.length + 2)
+          }
+
+          //Message for GPT's memory
+          const botMessageMemory: GptMessageMemory = {
+            role: "assistant",
+            content: response.text
+          }
+
+          //add bot messages to memory and chat history
+          setMessages([...messages, chatMsg, botMessage]);
+          gptMessageMemories = ([...gptMessageMemories, chatMsgMemory, botMessageMemory])
+          setErrorMsg("");
+
+          //set memoryTokens to number of tokens in gptMessageMemories
+          memoryTokens = 0;
+          gptMessageMemories.map((msg: GptMessageMemory) => {
+            const encoded: { bpe: number[]; text: string[] } = tokenizer.encode(msg.content);
+            memoryTokens += encoded.text.length;
+          });
+
+          //Output total tokens used at that point
+          totalTokens += memoryTokens + totalTokens;
+          console.log("Total tokens used:==================");
+          console.log(totalTokens);
+
+
+        } catch (error) {
+          setErrorMsg(`Error when parsing response! : ${error}`)
+        }
       }
-
     } catch (error) {
       setErrorMsg(`Error when calling API! : ${error}`);
     } finally {
@@ -126,10 +274,71 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
     }
   }
 
+  const setTotalInput = (chatInput: string) => {
+    totalInput.dialogue = [{ player: (adventurers[0].name), text: chatInput }];
+    totalInput.playerStats = adventurers;
+    totalInput.d20 = Math.floor(Math.random() * 20) + 1
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
   }
 
+  const updatePlayerStats = (statChanges: string) => {
+    let updatedAdventurers: Adventurer[] = [];
+    try {
+      let parsedStatChanges = JSON.parse(statChanges);
+      parsedStatChanges.forEach((stats: GptStatChanges) => {
+        adventurers.forEach((advent: Adventurer) => {
+          //check to see that stat changes and player name match
+          if (stats.name == advent.name) {
+
+            //check if there were any changes to array properties, if there were create replacements
+            let newPlayerItems = [...advent.inventory];
+            let newPlayerSpells: Spell[] = [...advent.spells];
+            if (stats.newSpells) {
+              if (stats.newSpells.length == 1) {
+                newPlayerSpells = [...advent.spells, stats.newSpells[0]];
+              } else {
+                newPlayerSpells = [...advent.spells, ...stats.newSpells];
+              }
+            }
+            if (stats.newItems) {
+              if (stats.newItems.length == 1) {
+                newPlayerItems = [...advent.inventory, stats.newItems[0]];
+              } else {
+                newPlayerItems = [...advent.inventory, ...stats.newItems];
+              }
+            }
+
+            let updatedPlayer: Adventurer = {
+              ...advent,
+              coins: {
+                gold: advent.coins.gold + stats.changeInGold,
+                silver: advent.coins.silver + stats.changeInSilver,
+                copper: advent.coins.copper += stats.changeInCopper
+              },
+              spells: [...newPlayerSpells],
+              inventory: [...newPlayerItems]
+            }
+            stats.itemsUsed.forEach((itemUsed: { "name": string }) => {
+              updatedPlayer.inventory.forEach((item: Item) => {
+                if (item.uses > 0 && itemUsed.name == item.name) {
+                  item.uses--;
+                  updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses > 0)
+                }
+              });
+            })
+            updatedAdventurers.push(updatedPlayer);
+
+          }
+        });
+      });
+    } catch (error) {
+      setErrorMsg(`Error when parsing player stats!`);
+
+    }
+  }
 
   return (
     <main className="h-full p-5 relative bg-gray-200 rounded-lg">
@@ -161,6 +370,7 @@ export default function GameChat({ adventurers }: { adventurers: Adventurer[] })
               <input className="h-full w-1/12 text-center hover:cursor-pointer custom_submit-bg" type="submit" value="" />
 
             </form>
+            <p>{errorMsg}</p>
           </div>
         </div>
       </div>

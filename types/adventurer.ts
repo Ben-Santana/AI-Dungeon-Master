@@ -1,15 +1,15 @@
 export interface Adventurer {
-    name: String;
-    race: String;
-    class: String;
+    name: string;
+    race: string;
+    class: string;
     level: number;
     stats: Stats;
     hitPoints: HitPoints;
     vigor: Vigor;
-    spells?: SpellsIndex;
-    abilities?: Abilities;
+    spells: Spell[];
+    abilities: Ability[];
     coins: Coins;
-    inventory?: Item[];
+    inventory: Item[];
 }
 
 export interface Stats {
@@ -32,18 +32,18 @@ export interface Vigor {
     speed: number;
 }
 
-export interface SpellsIndex {
+export interface Spell {
     name: String;
     castTime: number;
     description: String;
 }
 
-export interface Abilities {
+export interface Ability {
     name: String;
     description: String;
 }
 
-export interface Skills {
+export interface Skill {
     name: String;
     description: String;
 }
