@@ -5,7 +5,6 @@ import { Spell } from "../../types/adventurer";
 import { memo, useState } from "react";
 import GPT3Tokenizer from 'gpt3-tokenizer';
 
-//maybe put in types
 interface Message {
   role: "user" | "system" | "assistant";
   name: string,
@@ -51,7 +50,7 @@ interface GptStatChanges {
     }
   ]
 }
-//temporary system prompt
+
 const systemPrompt = `You are a well-spoken and descriptive Dungeon Master for a Dungeons & Dragons game. Your task is to write the game's story and progression, as well as describe the outcomes of the players' actions. After each narrative or dialogue you provide, you must also update the game's statistics for each player in a structured JSON format. Remember to include changes in health, gold, items used, new spells, and new items, following the players' actions and the game's events. Every message the player sends will be formatted in the following manner, do NOT respond in this format, and only respond in the JSON format that I will provide below:
 {
 	“dialogue” : [
@@ -126,9 +125,12 @@ When players find coins, or a pouch of coins, never state it as an item, only ad
 `;
 
 const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
+//total amount of tokens used
 let totalTokens = 0;
+//total tokens in gpts memory
 let memoryTokens = 0;
 
+//context for gpt
 let gptMessageMemories: GptMessageMemory[] = ([{ role: "system", content: systemPrompt }]);
 
 let totalInput: FormattedInput = ({ dialogue: [], playerStats: [], d20: 1 });
@@ -202,16 +204,11 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
     //disable chat while waiting for api call
     setLoading(true);
 
+    //
     setTotalInput(chatMsg.content);
 
     //try for api call
     try {
-      //print out what we are inputting into chatGPT
-      console.log("Input:==================")
-      console.log(totalInput);
-
-      console.log(totalTokens);
-
       //call api and wait for response
       const response = await fetch('/api/generate-response', {
         method: 'POST',
@@ -223,19 +220,14 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
         })
       }).then((response) => response.json());
 
-      //if response is valid...
       if (response.text) {
-        //print it out
-        console.log("Response:==================");
-        console.log(response.text);
-
         //attempt to parse
         try {
           let parsedResponse = JSON.parse(response.text);
           let dialogueResponse = parsedResponse.dialogue;
 
+          //if there are any stat changes, update player stats
           if (parsedResponse.statChanges) {
-            console.log(`Stat Changes: ${JSON.stringify(parsedResponse.statChanges)}`);
             updatePlayerStats(JSON.stringify(parsedResponse.statChanges));
           }
 
@@ -265,6 +257,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
             memoryTokens += encoded.text.length;
           });
 
+          //Output total tokens used at that point
           totalTokens += memoryTokens + totalTokens;
           console.log("Total tokens used:==================");
           console.log(totalTokens);
@@ -336,14 +329,8 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
                 }
               });
             })
-            console.log(updatedPlayer);
             updatedAdventurers.push(updatedPlayer);
 
-            console.log("Updated Adventurers:=================")
-            console.log(updatedAdventurers)
-            setPlayers(updatedAdventurers);
-          } else {
-            console.log("NO MATCH");
           }
         });
       });
