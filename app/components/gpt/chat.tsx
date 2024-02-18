@@ -85,7 +85,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
 
   return (
     <main className="h-full p-5 relative bg-gray-200 rounded-lg">
-      <div className="h-full flex flex-wrap flex-col gap-3">
+      <div className="h-full flex flex-col gap-3">
         <div className="basis-11/12 border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
           {messages.map((msg: Message) =>
             <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
@@ -96,22 +96,19 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
           }
 
         </div>
-          <div className="basis-1/12 h-full max-h-20 bg-white border-gray-300 border-2 p-1 rounded-lg flex items-center">
-            <form className="w-full h-full flex items-center" onSubmit={submitText}>
-
+          <div className="basis-1/12 h-full max-h-20 p-1 rounded-lg items-center">
+            <form className="w-full h-full items-center" onSubmit={submitText}>
               <textarea
                 id="inputBox"
                 rows={3}
                 style={{resize: 'none', padding: 10}}
-                className="h-full w-11/12 text-gray-900 text-wrap indent-3 rounded-lg focus:outline-none p-0 justify-self-center"
+                className="h-full w-11/12 text-gray-900 bg-white border-gray-300 border-2 text-wrap indent-3 rounded-lg focus:outline-none p-0 justify-self-center"
                 value={input}
                 placeholder={"Embark on your journey"}
                 onChange={handleInputChange}
                 disabled={loading}
               />
-
-              <input className="h-full w-1/12 min-w-20 text-center hover:cursor-pointer custom_submit-bg" type="submit" value="" />
-
+              <input className="h-full w-1/12 text-center justify-center items-center hover:cursor-pointer custom_submit-bg" type="submit" value="" />
             </form>
             <p>
               {/* {errorMsg} Reminder to add an error handler that adds an error alert to the page */}
