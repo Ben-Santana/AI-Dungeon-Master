@@ -32,8 +32,8 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                 //check to see that stat changes and player name match
                 if (stats.name == advent.name) {
 
-                    //check if there were any changes to array properties, if there were create replacements
-                    let newPlayerItems = [...advent.inventory];
+                    //check if there were any changes to array properties, if there were, create replacements
+                    let newPlayerItems: Item[] = [...advent.inventory];
                     let newPlayerSpells: Spell[] = [...advent.spells];
                     if (stats.newSpells) {
                         if (stats.newSpells.length == 1) {
@@ -64,7 +64,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                         updatedPlayer.inventory.forEach((item: Item) => {
                             if (item.uses > 0 && itemUsed.name == item.name) {
                                 item.uses--;
-                                updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses > 0)
+                                updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses != 0)
                             }
                         });
                     })
