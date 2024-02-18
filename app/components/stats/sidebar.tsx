@@ -1,4 +1,4 @@
-import { Adventurer, Spell } from "@/types/adventurer";
+import { Adventurer, Spell } from "../../../types/adventurer";
 
 const SideBarSpells = ({ players }: { players: Adventurer[] }) => {
     {
