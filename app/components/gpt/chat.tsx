@@ -24,7 +24,7 @@ interface playerInput {
 
 function ChatMessage({ name, content }: Message) {
   return (
-    <div className="border border-black-300 shadow rounded-md p-4 m-2">
+    <div className="custom_bg-light-beige shadow rounded-md p-4 m-2">
       <strong>{name}</strong>
       <p>{content}</p>
     </div>
@@ -33,17 +33,17 @@ function ChatMessage({ name, content }: Message) {
 
 const LoadingMessage = () => {
   return (
-    <div className="border border-black-300 shadow rounded-md p-4">
+    <div className="shadow rounded-md p-4 custom_bg-light-beige m-2">
       <div className="animate-pulse flex space-x-4">
-        <div className="rounded-full bg-slate-700 h-10 w-10"></div>
+        <div className="rounded-full custom_bg-beige h-10 w-10"></div>
         <div className="flex-1 space-y-6 py-1">
-          <div className="h-2 bg-slate-700 rounded"></div>
+          <div className="h-2 bg-beige rounded"></div>
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-4">
-              <div className="h-2 bg-slate-700 rounded col-span-2"></div>
-              <div className="h-2 bg-slate-700 rounded col-span-1"></div>
+              <div className="h-2 bg-beige rounded col-span-2"></div>
+              <div className="h-2 bg-beige rounded col-span-1"></div>
             </div>
-            <div className="h-2 bg-slate-700 rounded"></div>
+            <div className="h-2 bg-beige rounded"></div>
           </div>
         </div>
       </div>
@@ -81,14 +81,14 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
   }
 
   const handleInputChange = (e: React.FormEvent<HTMLDivElement>) => {
-    setInputText(e.currentTarget.innerHTML);
+    setInputText(e.currentTarget.textContent || "");
   }
 
   return (
-    <div className="h-full w-full p-5 relative bg-gray-200 rounded-lg">
+    <div className="h-full w-full p-5 relative custom_bg-beige rounded-lg">
       <div className="h-full flex flex-col flex-col-reverse gap-3">
         <div className="flex-auto p-1 rounded-lg">
-          <div className="w-full flex flex-row flex-row-reverse bg-white border-gray-300 border-2 rounded-lg gap-3 p-5 items-end">
+          <div className="w-full flex flex-row flex-row-reverse custom_bg-light-beige rounded-lg gap-3 p-5 items-end">
             <div className="flex-none h-12">
               <button className="h-12 w-auto hover:cursor-pointer" type="submit" onClick={submitText}>
                 <svg className="h-12 w-auto" viewBox="-16 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -97,13 +97,11 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
               </button>
             </div>
             <div className="self-center w-full h-full">
-              <div contentEditable className="w-full text-gray-900 text-balance focus:outline-none"
-                onInput={handleInputChange}
-                dangerouslySetInnerHTML={{ __html: input }} />
+              <div contentEditable className="w-full text-black-900 text-balance focus:outline-none" />
             </div>
           </div>
         </div>
-        <div className="flex-initial h-full border-gray-300 bg-white border-2 rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+        <div className="flex-initial h-full custom_bg-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
           {messages.map((msg: Message) =>
             <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
           )}

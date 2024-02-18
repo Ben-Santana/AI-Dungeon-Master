@@ -16,14 +16,22 @@ body {
 }
 
 .custom_bg-light-beige {
-    background-color: rgb(153, 127, 105);
+    background-color: rgb(245, 223, 202);
 }
 
 .custom_bg-beige {
-    background-color: rgb(109, 80, 57);
+    background-color: rgb(233, 206, 181);
 }
 
-div[contenteditable]{
+.custom_bg-dark-gray {
+    background-color: rgb(56, 51, 46);
+}
+
+.custom_bg-gray {
+    background-color: rgb(94, 87, 80);
+}
+
+div[contenteditable] {
     max-height: 200px;
     word-wrap: break-word;
     overflow: auto;
