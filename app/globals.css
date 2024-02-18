@@ -16,13 +16,21 @@ body {
 }
 
 .custom_bg-light-beige {
-    background-color: rgb(153, 127, 105);
+    background-color: rgb(245, 223, 202);
 }
 
 .custom_bg-beige {
-    background-color: rgb(109, 80, 57);
+    background-color: rgb(233, 206, 181);
 }
 
 textarea {
     resize: none;
+}
+
+.custom_bg-dark-gray {
+    background-color: rgb(46, 46, 56);
+}
+
+.custom_bg-gray {
+    background-color: rgb(83, 80, 94);
 }
