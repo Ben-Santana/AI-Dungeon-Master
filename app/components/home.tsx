@@ -8,7 +8,7 @@ export default function Home() {
     const [players, setPlayers] = useState<Adventurer[]>([{
         name: "Sir Gawain",
         race: "Human",
-        class: "Knight",
+        class: "Wizard Knight",
         level: 1,
         stats: {
             strength: 5,
@@ -34,7 +34,7 @@ export default function Home() {
         },
         inventory: [{ name: "Green steel sword", description: "Strong and adorned sword given to me by the queen of Eldoria", uses: -1 }],
         abilities: [],
-        spells: [{ name: "Heal", description: "Heals for 10 points of health", castTime: 1 }]
+        spells: [{ name: "Fireball", description: "Hurls a flaming ball towards enemies", castTime: 1 }]
     }]);
 
     return (
@@ -42,7 +42,7 @@ export default function Home() {
             <div className="basis-1/4 custom_bg-dark-gray p-3">
                 <SideBar players={players}></SideBar>
             </div>
-            <div className="basis-3/4 px-12 py-6 custom_bg-light-beige">
+            <div className="basis-3/4 px-12 py-6 custom_bg-gray">
                 <GameChat adventurers={players} setPlayers={setPlayers} ></GameChat>
             </div>
         </div>

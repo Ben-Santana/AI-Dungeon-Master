@@ -25,8 +25,8 @@ interface playerInput {
 function ChatMessage({ name, content }: Message) {
   return (
     <div className="custom_bg-light-beige shadow rounded-md p-4 m-2">
-      <strong className="">{name}</strong>
-      <p className="">{content}</p>
+      <strong className="text-2xl">{name}</strong>
+      <p className="text-lg">{content}</p>
     </div>
   )
 }
@@ -60,9 +60,12 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
 
   const [party, setParty] = useState(adventurers);
 
-  const submitText = (e: React.FormEvent) => {
-
+  const buttonCallSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
+    submitText();
+  }
+
+  const submitText = () => {
 
     const chatMsg: Message = {
       content: input,
@@ -88,8 +91,15 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
     setInputText(val);
   }
 
+  ///TODO: find out how to not put type any here
+  const onKeyPress = (e: any) => {
+    if (e.key == 'Enter') {
+      submitText();
+    }
+  }
+
   return (
-    <div className="h-full w-full p-5 relative custom_bg-light-beige rounded-lg">
+    <div className="h-full w-full p-5 relative custom_bg-beige rounded-lg">
       <div className="h-full flex flex-col flex-col-reverse gap-3">
         <div className="flex-auto p-1 rounded-lg">
           <div className="w-full h-max-12 flex flex-row flex-row-reverse custom_bg-light-beige border-gray-800 border-2 rounded-lg gap-3 p-5 items-end">
@@ -102,17 +112,18 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
             </div>
             <div className="self-center w-full h-full">
               <textarea
-                className="w-full custom_bg-light-beige text-gray-800 placeholder-gray-600 focus:outline-none no-scrollbar"
-                rows={2}
+                className="w-full custom_bg-light-beige text-xl text-gray-800 placeholder-gray-700 focus:outline-none no-scrollbar"
+                rows={1}
                 ref={textAreaRef}
                 onChange={handleInputChange}
-                placeholder={"Embark on your great adventure"}
+                placeholder={"Embark on your adventure"}
                 value={input}
+                onKeyDown={onKeyPress}
               />
             </div>
           </div>
         </div>
-        <div className="flex-initial h-full border-gray-300 custom_bg-light-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded no-scrollbar">
+        <div className="flex-initial h-full border-gray-300 custom_bg-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded no-scrollbar">
           {messages.map((msg: Message) =>
             <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
           )}

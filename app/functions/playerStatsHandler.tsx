@@ -27,11 +27,12 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
     let updatedAdventurers: Adventurer[] = [];
     try {
         let parsedStatChanges = JSON.parse(statChanges);
+        console.log(statChanges)
         parsedStatChanges.forEach((stats: GptStatChanges) => {
             adventurers.forEach((advent: Adventurer) => {
                 //check to see that stat changes and player name match
                 if (stats.name == advent.name) {
-
+                    console.log(advent);
                     //check if there were any changes to array properties, if there were, create replacements
                     let newPlayerItems: Item[] = [...advent.inventory];
                     let newPlayerSpells: Spell[] = [...advent.spells];
@@ -55,7 +56,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                         coins: {
                             gold: advent.coins.gold + stats.changeInGold,
                             silver: advent.coins.silver + stats.changeInSilver,
-                            copper: advent.coins.copper += stats.changeInCopper
+                            copper: advent.coins.copper + stats.changeInCopper
                         },
                         spells: [...newPlayerSpells],
                         inventory: [...newPlayerItems]

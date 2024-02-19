@@ -24,6 +24,12 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: "enchanted";
+    src: url('../public/fonts/Enchanted_Land.otf') format("opentype");
+    font-style: normal;
+}
+
 .custom_submit-bg {
 
     background-image: url('../public/svg/d20-dice.svg');
@@ -33,18 +39,25 @@
     background-repeat: no-repeat;
 }
 
-body {}
+body {
+    font-family: dungeon;
+    font-weight: 10;
+}
 
 .custom_bg-light-beige {
     background-color: rgb(245, 223, 202);
 }
 
 .custom_bg-beige {
-    background-color: rgb(233, 206, 181);
+    background-color: rgb(228, 204, 182);
 }
 
 .custom_dungeon-font {
     font-family: dungeon;
+}
+
+.custom_enchanted-font {
+    font-family: enchanted;
 }
 
 textarea {
