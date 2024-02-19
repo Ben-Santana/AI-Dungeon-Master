@@ -1,6 +1,6 @@
 'use client';
 import { Adventurer, Spell } from "@/types/adventurer";
-import GameChat from "./gpt/chat";
+import GameChat from "./chat/chat";
 import { memo, useState } from "react";
 import SideBar from "./stats/sidebar";
 
