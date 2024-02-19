@@ -1,9 +1,8 @@
 import { addToGptMemory, gptMessageMemories } from "./gptMemoryHandler";
-import { useState } from "react";
 import { updatePlayerStats } from "./playerStatsHandler";
 import { Adventurer } from "@/types/adventurer";
 import { updateTokenCount } from "./tokenCountHandler";
-import { FormattedInput } from "../components/gpt/chat";
+import { FormattedInput } from "../components/chat/chat";
 
 interface Message {
     role: "user" | "system" | "assistant";
