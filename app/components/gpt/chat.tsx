@@ -85,9 +85,9 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
   }
 
   return (
-    <div className="h-full w-full p-5 relative custom_bg-beige rounded-lg">
+    <div className="h-full w-full p-5 relative custom_bg-light-beige rounded-lg">
       <div className="h-full flex flex-col flex-col-reverse gap-3">
-        <div className="flex-auto p-1 rounded-lg">
+        <div className="flex-auto p-1 rounded-lg border-2 border-gray-800">
           <div className="w-full flex flex-row flex-row-reverse custom_bg-light-beige rounded-lg gap-3 p-5 items-end">
             <div className="flex-none h-12">
               <button className="h-12 w-auto hover:cursor-pointer" type="submit" onClick={submitText}>
@@ -98,10 +98,11 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
             </div>
             <div className="self-center w-full h-full">
               <div contentEditable className="w-full text-black-900 text-balance focus:outline-none" />
+              {/* <textarea className="w-full text-black-900 text-balance focus:outline-none" name="Input" id=""></textarea> */}
             </div>
           </div>
         </div>
-        <div className="flex-initial h-full custom_bg-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded">
+        <div className="flex-initial h-full custom_bg-light-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded no-scrollbar">
           {messages.map((msg: Message) =>
             <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
           )}
