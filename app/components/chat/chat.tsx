@@ -25,8 +25,8 @@ interface playerInput {
 function ChatMessage({ name, content }: Message) {
   return (
     <div className="custom_bg-light-beige shadow rounded-md p-4 m-2">
-      <strong>{name}</strong>
-      <p>{content}</p>
+      <strong className="">{name}</strong>
+      <p className="">{content}</p>
     </div>
   )
 }
@@ -102,7 +102,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
             </div>
             <div className="self-center w-full h-full">
               <textarea
-                className="w-full custom_bg-light-beige text-gray-800 placeholder-gray-600 text-balance focus:outline-none no-scrollbar"
+                className="w-full custom_bg-light-beige text-gray-800 placeholder-gray-600 focus:outline-none no-scrollbar"
                 rows={2}
                 ref={textAreaRef}
                 onChange={handleInputChange}

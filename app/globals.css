@@ -18,6 +18,12 @@
     }
 }
 
+@font-face {
+    font-family: "dungeon";
+    src: url('../public/fonts/DungeonFont.ttf') format("truetype");
+    font-style: normal;
+}
+
 .custom_submit-bg {
 
     background-image: url('../public/svg/d20-dice.svg');
@@ -27,9 +33,7 @@
     background-repeat: no-repeat;
 }
 
-body {
-    font-family: witcher;
-}
+body {}
 
 .custom_bg-light-beige {
     background-color: rgb(245, 223, 202);
@@ -37,6 +41,10 @@ body {
 
 .custom_bg-beige {
     background-color: rgb(233, 206, 181);
+}
+
+.custom_dungeon-font {
+    font-family: dungeon;
 }
 
 textarea {
