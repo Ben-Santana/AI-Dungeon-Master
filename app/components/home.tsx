@@ -42,7 +42,7 @@ export default function Home() {
             <div className="basis-1/4 custom_bg-dark-gray p-3">
                 <SideBar players={players}></SideBar>
             </div>
-            <div className="basis-3/4 px-12 py-6 custom_bg-beige">
+            <div className="basis-3/4 px-12 py-6 custom_bg-light-beige">
                 <GameChat adventurers={players} setPlayers={setPlayers} ></GameChat>
             </div>
         </div>
