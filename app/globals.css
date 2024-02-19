@@ -44,23 +44,9 @@ textarea {
 }
 
 .custom_bg-dark-gray {
-<<<<<<< HEAD
-    background-color: rgb(46, 46, 56);
-}
-
-.custom_bg-gray {
-    background-color: rgb(83, 80, 94);
-=======
     background-color: rgb(11, 11, 19);
 }
 
 .custom_bg-gray {
     background-color: rgb(30, 28, 36);
-}
-
-div[contenteditable] {
-    max-height: 200px;
-    word-wrap: break-word;
-    overflow: auto;
->>>>>>> 93914ea (more ui changes)
 }

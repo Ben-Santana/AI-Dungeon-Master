@@ -67,7 +67,8 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                                 updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses != 0)
                             }
                         });
-                    })
+                    });
+                    console.log(updatedPlayer);
                     updatedAdventurers.push(updatedPlayer);
                     setPlayers(updatedAdventurers);
                 }
