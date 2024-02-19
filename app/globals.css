@@ -23,8 +23,6 @@ body {
     background-color: rgb(109, 80, 57);
 }
 
-div[contenteditable]{
-    max-height: 200px;
-    word-wrap: break-word;
-    overflow: auto;
+textarea {
+    resize: none;
 }

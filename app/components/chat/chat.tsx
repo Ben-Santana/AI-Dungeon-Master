@@ -1,8 +1,8 @@
 'use client';
 import { Adventurer } from "../../../types/adventurer";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { callGptApi } from "../../functions/apiCallHandler";
-import d20 from '../../../public/images/d20-dice.png'
+import useAutosizeTextArea from "./useAutosizeTextArea";
 
 interface Message {
   role: "user" | "system" | "assistant";
@@ -80,15 +80,19 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
     callGptApi(input, setLoading, setErrorMsg, adventurers, setPlayers, messages, setMessages);
   }
 
-  const handleInputChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    setInputText(e.currentTarget.value);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  useAutosizeTextArea(textAreaRef.current, input);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target?.value;
+    setInputText(val);
   }
 
   return (
     <div className="h-full w-full p-5 relative bg-gray-200 rounded-lg">
       <div className="h-full flex flex-col flex-col-reverse gap-3">
         <div className="flex-auto p-1 rounded-lg">
-          <div className="w-full flex flex-row flex-row-reverse bg-white border-gray-300 border-2 rounded-lg gap-3 p-5 items-end">
+          <div className="w-full h-max-12 flex flex-row flex-row-reverse bg-white border-gray-300 border-2 rounded-lg gap-3 p-5 items-end">
           <div className="flex-none h-12">
               <button className="h-12 w-auto hover:cursor-pointer" type="submit" onClick={submitText}>
                 <svg className="h-12 w-auto" viewBox="-16 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +101,14 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
               </button>
             </div>
           <div className="self-center w-full h-full">
-            <div contentEditable className="w-full text-gray-900 text-balance focus:outline-none"/>
+            <textarea
+              className="w-full text-gray-900 text-balance focus:outline-none"
+              rows={2}
+              ref={textAreaRef}
+              onChange={handleInputChange}
+              placeholder={"Embark on your great adventure"}
+              value={input}
+            />
           </div>
             </div>
           </div>
