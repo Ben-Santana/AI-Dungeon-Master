@@ -1,4 +1,4 @@
-import { Adventurer, Item, Spell } from "@/types/adventurer";
+import { Adventurer, Coins, Item, Spell } from "@/types/adventurer";
 
 interface GptStatChanges {
     "name": string,
@@ -36,6 +36,12 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                     //check if there were any changes to array properties, if there were, create replacements
                     let newPlayerItems: Item[] = [...advent.inventory];
                     let newPlayerSpells: Spell[] = [...advent.spells];
+                    let newCoins: Coins = {
+                        gold: advent.coins.gold + stats.changeInGold,
+                        silver: advent.coins.silver + stats.changeInSilver,
+                        copper: advent.coins.copper + stats.changeInCopper,
+                    }
+                    console.log(newCoins);
                     if (stats.newSpells) {
                         if (stats.newSpells.length == 1) {
                             newPlayerSpells = [...advent.spells, stats.newSpells[0]];
@@ -53,11 +59,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
 
                     let updatedPlayer: Adventurer = {
                         ...advent,
-                        coins: {
-                            gold: advent.coins.gold + stats.changeInGold,
-                            silver: advent.coins.silver + stats.changeInSilver,
-                            copper: advent.coins.copper + stats.changeInCopper
-                        },
+                        coins: newCoins,
                         spells: [...newPlayerSpells],
                         inventory: [...newPlayerItems]
                     }

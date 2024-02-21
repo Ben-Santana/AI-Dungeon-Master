@@ -91,21 +91,21 @@ const SideBarCoins = ({ players }: { players: Adventurer[] }) => {
     return <div className="custom_bg-gray h-full rounded-sm p-3 m-1 text-center grid grid-flow-row-dense grid-cols-1 grid-rows-3 justify-content items-center text-white gap-x-0.5">
         <div className="col-span-1 row-span-1">
             <strong className="text-xl">Gold</strong>
-            {(player.coins.gold <= 0)
+            {(player.coins.gold >= 0)
                 ? <p className=" custom_dungeon-font text-gray-400">{player.coins.gold}</p>
                 : <p className=" custom_dungeon-font text-gray-400">0</p>
             }
         </div>
         <div className="col-span-1 row-span-1">
             <strong className="text-xl">Silver</strong>
-            {(player.coins.silver <= 0)
+            {(player.coins.silver >= 0)
                 ? <p className=" custom_dungeon-font text-gray-400">{player.coins.silver}</p>
                 : <p className=" custom_dungeon-font text-gray-400">0</p>
             }
         </div>
         <div className="col-span-1 row-span-1">
             <strong className="text-xl">Copper</strong>
-            {(player.coins.copper <= 0)
+            {(player.coins.copper >= 0)
                 ? <p className=" custom_dungeon-font text-gray-400">{player.coins.copper}</p>
                 : <p className=" custom_dungeon-font text-gray-400">0</p>
             }
