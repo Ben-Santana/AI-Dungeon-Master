@@ -1,4 +1,4 @@
-import { Adventurer, Coins, Item, Spell } from "@/types/adventurer";
+import { Adventurer, Coins, HitPoints, Item, Spell } from "@/types/adventurer";
 
 interface GptStatChanges {
     "name": string,
@@ -41,6 +41,10 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                         silver: advent.coins.silver + stats.changeInSilver,
                         copper: advent.coins.copper + stats.changeInCopper,
                     }
+                    let newPlayerHealth: HitPoints = {
+                        currentHp: advent.hitPoints.currentHp + stats.changeInHeath,
+                        maxHp: advent.hitPoints.maxHp
+                    }
                     console.log(newCoins);
                     if (stats.newSpells) {
                         if (stats.newSpells.length == 1) {
@@ -59,6 +63,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
 
                     let updatedPlayer: Adventurer = {
                         ...advent,
+                        hitPoints: newPlayerHealth,
                         coins: newCoins,
                         spells: [...newPlayerSpells],
                         inventory: [...newPlayerItems]

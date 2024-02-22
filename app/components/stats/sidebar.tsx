@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Adventurer, Item, Spell } from "../../../types/adventurer";
 
 const SideBarSpells = ({ players }: { players: Adventurer[] }) => {
@@ -74,21 +75,19 @@ const SideBarStats = ({ players }: { players: Adventurer[] }) => {
 
 const SideBarHealth = ({ players }: { players: Adventurer[] }) => {
     let player: Adventurer = players[0];
-    return <div className="custom_bg-gray h-full rounded-sm p-3 m-1 text-center grid grid-flow-row-dense grid-cols-2 grid-rows-1 justify-content items-center text-white gap-x-0.5">
-        <div className="col-span-1 row-span-1">
-            <strong className="text-2xl text-gray-100">HP</strong>
-            <p className=" custom_enchanted-font text-2xl text-gray-400">{player.hitPoints.currentHp}/{player.hitPoints.maxHp}</p>
+    document.documentElement.style.setProperty('--healthbar-width', `${100 * player.hitPoints.currentHp / player.hitPoints.maxHp}` + '%');
+    return <div className="relative custom_bg-gray rounded-md p-1 text-center text-white grid grid-flow-row-dense grid-cols-6 grid-rows-1">
+        <strong className="z-20 text-2xl text-gray-100 h-full col-span-1">{player.hitPoints.currentHp}/{player.hitPoints.maxHp}</strong>
+        <div className="w-full relative col-span-5 row-span-1">
+            <div className='z-0 absolute top-1 left-0 h-4/5 w-full custom_bg-dark-gray rounded-lg'></div>
+            <div className='z-0 absolute top-1 left-0 h-4/5 custom_healthbar-width custom_bg-red rounded-lg'></div>
         </div>
-        <div className="col-span-1 row-span-1">
-            <strong className="text-2xl text-gray-100">ARMCL</strong>
-            <p className=" custom_dungeon-font text-2xl text-gray-400">{player.vigor.armorClass}</p>
-        </div>
-    </div>
+    </div >
 }
 
 const SideBarCoins = ({ players }: { players: Adventurer[] }) => {
     let player: Adventurer = players[0];
-    return <div className="custom_bg-gray h-full rounded-sm p-3 m-1 text-center grid grid-flow-row-dense grid-cols-1 grid-rows-3 justify-content items-center text-white gap-x-0.5">
+    return <div className="custom_bg-gray rounded-sm p-3 m-1 text-center grid grid-flow-row-dense grid-cols-3 grid-rows-1 justify-content items-center text-white gap-x-0.5">
         <div className="col-span-1 row-span-1">
             <strong className="text-xl">Gold</strong>
             {(player.coins.gold >= 0)
@@ -113,8 +112,15 @@ const SideBarCoins = ({ players }: { players: Adventurer[] }) => {
     </div>
 }
 
+const SideBarNav = () => {
+    return <div className="custom_bg-gray m-2 rounded-lg">
+        <Link href="/dashboard" className="text-white text-xl">Back to dashboard</Link>
+    </div>
+}
+
 export default function SideBar({ players }: { players: Adventurer[] }) {
     return <div className="text-center overflow-auto overscroll-auto scrollbar-thumb:!rounded h-full no-scrollbar custom_enchanted-font ">
+        <SideBarHealth players={players}></SideBarHealth>
         <strong className="text-white text-3xl">Spells</strong>
         <SideBarSpells players={players}></SideBarSpells>
         <br />
@@ -124,13 +130,8 @@ export default function SideBar({ players }: { players: Adventurer[] }) {
         <strong className="text-white text-3xl">Stats</strong>
         <SideBarStats players={players}></SideBarStats>
         <br />
-        <div className="grid grid-flow-row-dense grid-cols-3 grid-rows-1">
-            <div className="col-span-2 row-span-1">
-                <SideBarHealth players={players}></SideBarHealth>
-            </div>
-            <div className="col-span-1 row-span-2">
-                <SideBarCoins players={players}></SideBarCoins>
-            </div>
-        </div>
+        <SideBarCoins players={players}></SideBarCoins>
+        <br />
+        <SideBarNav></SideBarNav>
     </div>
 }

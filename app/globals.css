@@ -30,6 +30,10 @@
     font-style: normal;
 }
 
+:root {
+    --healthbar-width: 100%;
+}
+
 .custom_submit-bg {
 
     background-image: url('../public/svg/d20-dice.svg');
@@ -70,4 +74,12 @@ textarea {
 
 .custom_bg-gray {
     background-color: rgb(30, 28, 36);
+}
+
+.custom_bg-red {
+    background-color: rgb(143, 38, 8);
+}
+
+.custom_healthbar-width {
+    width: var(--healthbar-width);
 }

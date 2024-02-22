@@ -4,7 +4,7 @@ import GameChat from "./chat/chat";
 import { memo, useState } from "react";
 import SideBar from "./stats/sidebar";
 
-export default function Home() {
+export default function Game() {
     const [players, setPlayers] = useState<Adventurer[]>([{
         name: "Sir Gawain",
         race: "Human",
