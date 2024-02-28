@@ -1,4 +1,3 @@
-import Landing from "./components/landing";
 import UserInfo from "./components/userInfo";
 
 export default function LandingPage() {
