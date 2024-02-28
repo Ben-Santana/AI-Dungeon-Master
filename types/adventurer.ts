@@ -1,7 +1,7 @@
 export interface Adventurer {
     name: string;
     race: string;
-    class: string;
+    class: "wizard" | "knight" | "artificer" | "";
     level: number;
     stats: Stats;
     hitPoints: HitPoints;

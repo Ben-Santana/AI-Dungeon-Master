@@ -1,16 +1,53 @@
-// Import React and necessary hooks
 'use client'
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Character } from '@/types/user';
+import Link from 'next/link'
+import { useState } from 'react';
+import React, { MouseEvent } from 'react';
 
-const NavBar = () => {
+// const CharacterCards = () => {
+//     return <div className='grid grid-flow-row-dense grid-cols-3 grid-rows-2'>
+//         {user.characters.map((character: Character) => {
+//             let tempSelect = false
+//             if (character.adventurer.name == user.characters[user.currentCharacterIndex].adventurer.name) tempSelect = true;
+//             return <div className='col-span-1 row-span-1'>
+//                 <CharacterCard character={character} selected={tempSelect}></CharacterCard>
+//             </div>
+//         })}
+//     </div>
+// }
+
+// const CharacterCard = ({ character, selected }: { character: Character, selected: boolean }) => {
+
+//     const handleButtonClick = ((e: MouseEvent<HTMLButtonElement>) => {
+//         e.preventDefault();
+//         SelectCharacter(character);
+//     });
+
+//     const buttonClass = selected ?
+//         'custom_bg-light-beige p-2 m-2 rounded-md text-gray-800 border-2 border-white w-full' :
+//         'custom_bg-light-beige p-2 m-2 rounded-md text-gray-600 hover:text-gray-800 w-full';
+
+//     return (
+//         <button className={buttonClass} onClick={handleButtonClick}>
+//             <strong className='text-2xl'>{character.adventurer.name}</strong>
+//         </button>
+//     );
+
+// }
+
+// const SelectCharacter = (character: Character) => {
+//     const index = user.characters.findIndex(c => c.adventurer.name === character.adventurer.name);
+//     if (index !== -1) user.currentCharacterIndex = index;
+// };
+
+
+export default function Dashboard() {
     // State variables to replace AlpineJS functionality
     const [profileOpen, setProfileOpen] = useState(false);
     const [asideOpen, setAsideOpen] = useState(true);
 
     return (
-        <main className="min-h-screen w-full bg-white text-gray-700">
+        <main className="min-h-screen w-full custom_bg-beige text-gray-700">
             <header className="flex w-full items-center justify-between custom_bg-dark-gray p-2">
                 {/* Rest of the header code */}
                 <div className="flex items-center space-x-2">
@@ -46,10 +83,9 @@ const NavBar = () => {
                 {/* Main content */}
                 <div className="w-full p-4">
                     {/* Content goes here */}
+                    {/* <CharacterCards></CharacterCards> */}
                 </div>
             </div>
         </main>
     );
-};
-
-export default NavBar;
+}

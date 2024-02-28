@@ -88,6 +88,7 @@ export const callGptApi = async (playerInput: string,
         }
     } catch (error) {
         setErrorMsg(`Error when calling API! : ${error}`);
+        console.log(error);
     } finally {
         setLoading(false);
     }

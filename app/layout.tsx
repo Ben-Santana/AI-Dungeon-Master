@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import localfont from "next/font/local";
 import "./globals.css";
+import Link from "next/link";
+import NavBar from "./components/navbar";
 
 //const inter = Inter({ subsets: ["latin"] });
 
@@ -41,7 +43,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full w-full">
-      <body className={`h-full w-full mt-0 ${dungeon.variable} ${enchanted.variable}`}>{children}</body>
+      <body className={`h-full w-full mt-0 custom_bg-beige ${dungeon.variable} ${enchanted.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }
