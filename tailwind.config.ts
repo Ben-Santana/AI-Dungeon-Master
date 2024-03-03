@@ -20,6 +20,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['witcher', 'sans'],
+        dungeon: ['var(--font-dungeon'],
+        enchanted: ['var(--font-enchanted']
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

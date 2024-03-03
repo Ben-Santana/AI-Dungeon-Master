@@ -75,7 +75,7 @@ export const callGptApi = async (playerInput: string,
 
                 //add to chat history
                 setMessages([...messages, playerMsg, botMessage]);
-
+                console.log(response.text)
                 addToGptMemory(playerInput, response.text);
 
                 setErrorMsg("");
@@ -88,6 +88,7 @@ export const callGptApi = async (playerInput: string,
         }
     } catch (error) {
         setErrorMsg(`Error when calling API! : ${error}`);
+        console.log(error);
     } finally {
         setLoading(false);
     }

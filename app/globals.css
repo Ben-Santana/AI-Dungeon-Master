@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+}
+
+@font-face {
+    font-family: "dungeon";
+    src: url('../public/fonts/DungeonFont.ttf') format("truetype");
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "enchanted";
+    src: url('../public/fonts/Enchanted_Land.otf') format("opentype");
+    font-style: normal;
+}
+
+:root {
+    --healthbar-width: 100%;
+}
+
 .custom_submit-bg {
 
     background-image: url('../public/svg/d20-dice.svg');
@@ -12,17 +44,42 @@
 }
 
 body {
-    font-family: witcher;
+    font-family: dungeon;
+    font-weight: 10;
 }
 
 .custom_bg-light-beige {
-    background-color: rgb(153, 127, 105);
+    background-color: rgb(245, 223, 202);
 }
 
 .custom_bg-beige {
-    background-color: rgb(109, 80, 57);
+    background-color: rgb(228, 204, 182);
+}
+
+.custom_dungeon-font {
+    font-family: dungeon;
+}
+
+.custom_enchanted-font {
+    font-family: enchanted;
 }
 
 textarea {
     resize: none;
+}
+
+.custom_bg-dark-gray {
+    background-color: rgb(11, 11, 19);
+}
+
+.custom_bg-gray {
+    background-color: rgb(30, 28, 36);
+}
+
+.custom_bg-red {
+    background-color: rgb(143, 38, 8);
+}
+
+.custom_healthbar-width {
+    width: var(--healthbar-width);
 }

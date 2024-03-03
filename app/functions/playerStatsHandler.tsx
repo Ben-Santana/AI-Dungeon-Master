@@ -1,4 +1,4 @@
-import { Adventurer, Item, Spell } from "@/types/adventurer";
+import { Adventurer, Coins, HitPoints, Item, Skill, Spell } from "@/types/adventurer";
 
 interface GptStatChanges {
     "name": string,
@@ -20,6 +20,12 @@ interface GptStatChanges {
             "description": string,
             "uses": number //Number or -1 for unlimited
         }
+    ],
+    "newSkills": [
+        {
+            "name": string,
+            "description": string
+        }
     ]
 }
 
@@ -27,14 +33,25 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
     let updatedAdventurers: Adventurer[] = [];
     try {
         let parsedStatChanges = JSON.parse(statChanges);
+        console.log(statChanges)
         parsedStatChanges.forEach((stats: GptStatChanges) => {
             adventurers.forEach((advent: Adventurer) => {
                 //check to see that stat changes and player name match
                 if (stats.name == advent.name) {
-
-                    //check if there were any changes to array properties, if there were create replacements
-                    let newPlayerItems = [...advent.inventory];
+                    console.log(advent);
+                    //check if there were any changes to array properties, if there were, create replacements
+                    let newPlayerItems: Item[] = [...advent.inventory];
                     let newPlayerSpells: Spell[] = [...advent.spells];
+                    let newPlayerSkills: Skill[] = [...advent.skills];
+                    let newCoins: Coins = {
+                        gold: advent.coins.gold + stats.changeInGold,
+                        silver: advent.coins.silver + stats.changeInSilver,
+                        copper: advent.coins.copper + stats.changeInCopper,
+                    }
+                    let newPlayerHealth: HitPoints = {
+                        currentHp: advent.hitPoints.currentHp + stats.changeInHeath,
+                        maxHp: advent.hitPoints.maxHp
+                    }
                     if (stats.newSpells) {
                         if (stats.newSpells.length == 1) {
                             newPlayerSpells = [...advent.spells, stats.newSpells[0]];
@@ -49,25 +66,31 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                             newPlayerItems = [...advent.inventory, ...stats.newItems];
                         }
                     }
+                    if (stats.newSkills) {
+                        if (stats.newSkills.length == 1) {
+                            newPlayerSkills = [...advent.skills, stats.newSkills[0]];
+                        } else {
+                            newPlayerSkills = [...advent.skills, ...stats.newSkills];
+                        }
+                    }
 
                     let updatedPlayer: Adventurer = {
                         ...advent,
-                        coins: {
-                            gold: advent.coins.gold + stats.changeInGold,
-                            silver: advent.coins.silver + stats.changeInSilver,
-                            copper: advent.coins.copper += stats.changeInCopper
-                        },
+                        hitPoints: newPlayerHealth,
+                        coins: newCoins,
                         spells: [...newPlayerSpells],
-                        inventory: [...newPlayerItems]
+                        inventory: [...newPlayerItems],
+                        skills: [...newPlayerSkills]
                     }
                     stats.itemsUsed.forEach((itemUsed: { "name": string }) => {
                         updatedPlayer.inventory.forEach((item: Item) => {
                             if (item.uses > 0 && itemUsed.name == item.name) {
                                 item.uses--;
-                                updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses > 0)
+                                updatedPlayer.inventory = updatedPlayer.inventory.filter(item => item.uses != 0)
                             }
                         });
-                    })
+                    });
+                    console.log(updatedPlayer);
                     updatedAdventurers.push(updatedPlayer);
                     setPlayers(updatedAdventurers);
                 }

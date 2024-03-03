@@ -47,6 +47,7 @@ Your response to the players text should only be in "dialogue" in the following 
     "changeInGold": number,
     "changeInSilver": number,
     "changeInCopper": number,
+	"xpGained": number, // 10 for defeating small enemies, 25 for medium, 50 for large
     "itemsUsed": [{'name': string}],
     "newSpells": [
       {
@@ -60,6 +61,12 @@ Your response to the players text should only be in "dialogue" in the following 
         "name": 'Item Name',
         "description": 'Concise Description',
         "uses": 2 //Number or -1 for unlimited
+      }
+    ],
+    "newSkills": [
+      {
+        "name": 'Skill Name',
+        "description": 'Concise Description'
       }
     ]
   }

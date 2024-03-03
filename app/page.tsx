@@ -1,8 +1,9 @@
-import Home from "./components/home";
+import UserInfo from "./components/userInfo";
 
-export default function Page() {
-
-    return (
-        <Home />
-    );
+export default function LandingPage() {
+    return <>
+        <div className="grid place-items-center h-screen">
+            <UserInfo></UserInfo>
+        </div>
+    </>
 }

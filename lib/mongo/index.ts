@@ -1,0 +1,30 @@
+import { MongoClient, Db } from 'mongodb';
+
+const URI = process.env.MONGO_URI;
+
+if (!URI) {
+    throw new Error('Please define the MONGO_URI environment variable inside .env.local');
+}
+
+const options = {};
+
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
+if (process.env.NODE_ENV === 'production') {
+    // In development mode, use a global variable so that the value
+    // is preserved across module reloads caused by HMR (Hot Module Replacement).
+    if (!global._mongoClientPromise) {
+        client = new MongoClient(URI, options);
+        global._mongoClientPromise = client.connect();
+    }
+    clientPromise = global._mongoClientPromise;
+} else {
+    // In production mode, it's best to not use a global variable.
+    client = new MongoClient(URI, options);
+    clientPromise = client.connect();
+}
+
+// Export a module-scoped MongoClient promise. By doing this in a
+// separate module, the client can be shared across functions.
+export default clientPromise;

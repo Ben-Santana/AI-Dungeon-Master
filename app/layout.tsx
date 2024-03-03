@@ -1,8 +1,35 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import localfont from "next/font/local";
 import "./globals.css";
+import Link from "next/link";
+import NavBar from "./components/navbar";
 
 //const inter = Inter({ subsets: ["latin"] });
+
+const dungeon = localfont(
+  {
+    src: [
+      {
+        path: "../public/fonts/DungeonFont.ttf",
+        weight: "100"
+      }
+    ],
+    variable: "--font-dungeon"
+  }
+);
+
+const enchanted = localfont(
+  {
+    src: [
+      {
+        path: "../public/fonts/Enchanted_Land.otf",
+        weight: "100"
+      }
+    ],
+    variable: "--font-enchanted"
+  }
+);
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +43,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full w-full">
-      <body className={"h-full w-full mt-0"}>{children}</body>
+      <body className={`h-full w-full mt-0 custom_bg-beige ${dungeon.variable} ${enchanted.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }
