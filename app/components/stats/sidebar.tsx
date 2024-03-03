@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Adventurer, Item, Spell } from "../../../types/adventurer";
+import { Adventurer, Item, Skill, Spell } from "../../../types/adventurer";
 
 const SideBarSpells = ({ players }: { players: Adventurer[] }) => {
     return <div className="custom_bg-gray rounded-sm p-3 m-1 text-left" >
@@ -10,6 +10,17 @@ const SideBarSpells = ({ players }: { players: Adventurer[] }) => {
             </div>)}
     </div>
 }
+
+const SideBarSkills = ({ players }: { players: Adventurer[] }) => {
+    return <div className="custom_bg-gray rounded-sm p-3 m-1 text-left" >
+        {players[0].skills.map((skill: Skill) =>
+            <div className="rounded-md p-3 m-1">
+                <strong className="text-gray-100 text-2xl">{skill.name}</strong>
+                <p className="text-gray-300 indent-3 text-xl" title={skill.description.toString()}>{skill.description}</p>
+            </div>)}
+    </div>
+}
+
 
 const SideBarInventory = ({ players }: { players: Adventurer[] }) => {
     return <div className="custom_bg-gray rounded-sm p-3 m-1 text-left" >
@@ -123,6 +134,9 @@ export default function SideBar({ players }: { players: Adventurer[] }) {
         <SideBarHealth players={players}></SideBarHealth>
         <strong className="text-white text-3xl">Spells</strong>
         <SideBarSpells players={players}></SideBarSpells>
+        <br />
+        <strong className="text-white text-3xl">Skills</strong>
+        <SideBarSkills players={players}></SideBarSkills>
         <br />
         <strong className="text-white text-3xl">Inventory</strong>
         <SideBarInventory players={players}></SideBarInventory>

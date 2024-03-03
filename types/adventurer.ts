@@ -7,7 +7,7 @@ export interface Adventurer {
     hitPoints: HitPoints;
     vigor: Vigor;
     spells: Spell[];
-    abilities: Ability[];
+    skills: Skill[];
     coins: Coins;
     inventory: Item[];
 }
@@ -35,11 +35,6 @@ export interface Vigor {
 export interface Spell {
     name: String;
     castTime: number;
-    description: String;
-}
-
-export interface Ability {
-    name: String;
     description: String;
 }
 

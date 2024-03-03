@@ -63,9 +63,9 @@ Your response to the players text should only be in "dialogue" in the following 
         "uses": 2 //Number or -1 for unlimited
       }
     ],
-    "newAbilities": [
+    "newSkills": [
       {
-        "name": 'Ability Name',
+        "name": 'Skill Name',
         "description": 'Concise Description'
       }
     ]

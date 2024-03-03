@@ -33,7 +33,7 @@ export let tempAdventurer1: Adventurer = {
         copper: 5
     },
     inventory: [{ name: "Green steel sword", description: "Strong and adorned sword given to me by the queen of Eldoria", uses: -1 }],
-    abilities: [],
+    skills: [],
     spells: []
 }
 
@@ -66,7 +66,7 @@ let tempAdventurer2: Adventurer = {
         copper: 5
     },
     inventory: [{ name: "Green Spell Book", description: "Strong and adorned spell book given to me by the queen of Eldoria", uses: -1 }],
-    abilities: [],
+    skills: [],
     spells: [{ name: "Fireball", description: "Hurls a flaming ball towards enemies", castTime: 1 }]
 }
 

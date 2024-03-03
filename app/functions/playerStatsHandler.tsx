@@ -1,4 +1,4 @@
-import { Adventurer, Coins, HitPoints, Item, Spell } from "@/types/adventurer";
+import { Adventurer, Coins, HitPoints, Item, Skill, Spell } from "@/types/adventurer";
 
 interface GptStatChanges {
     "name": string,
@@ -20,6 +20,12 @@ interface GptStatChanges {
             "description": string,
             "uses": number //Number or -1 for unlimited
         }
+    ],
+    "newSkills": [
+        {
+            "name": string,
+            "description": string
+        }
     ]
 }
 
@@ -36,6 +42,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                     //check if there were any changes to array properties, if there were, create replacements
                     let newPlayerItems: Item[] = [...advent.inventory];
                     let newPlayerSpells: Spell[] = [...advent.spells];
+                    let newPlayerSkills: Skill[] = [...advent.skills];
                     let newCoins: Coins = {
                         gold: advent.coins.gold + stats.changeInGold,
                         silver: advent.coins.silver + stats.changeInSilver,
@@ -45,7 +52,6 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                         currentHp: advent.hitPoints.currentHp + stats.changeInHeath,
                         maxHp: advent.hitPoints.maxHp
                     }
-                    console.log(newCoins);
                     if (stats.newSpells) {
                         if (stats.newSpells.length == 1) {
                             newPlayerSpells = [...advent.spells, stats.newSpells[0]];
@@ -60,13 +66,21 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                             newPlayerItems = [...advent.inventory, ...stats.newItems];
                         }
                     }
+                    if (stats.newSkills) {
+                        if (stats.newSkills.length == 1) {
+                            newPlayerSkills = [...advent.skills, stats.newSkills[0]];
+                        } else {
+                            newPlayerSkills = [...advent.skills, ...stats.newSkills];
+                        }
+                    }
 
                     let updatedPlayer: Adventurer = {
                         ...advent,
                         hitPoints: newPlayerHealth,
                         coins: newCoins,
                         spells: [...newPlayerSpells],
-                        inventory: [...newPlayerItems]
+                        inventory: [...newPlayerItems],
+                        skills: [...newPlayerSkills]
                     }
                     stats.itemsUsed.forEach((itemUsed: { "name": string }) => {
                         updatedPlayer.inventory.forEach((item: Item) => {
