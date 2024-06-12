@@ -29,13 +29,14 @@ const CharacterCards = ({ users, currentCharacterIndex, setCurrentCharacterIndex
 
     return null;
 };
-const CharacterCard = ({ user, character, currentCharacterIndex, setCurrentCharacterIndex, index, loadingIndex, setLoadingIndex }: 
-                        { user: User, character: Character, currentCharacterIndex: number | null, setCurrentCharacterIndex: (index: number) => void, index: number, loadingIndex: number | null, setLoadingIndex: (index: number | null) => void }) => {
+const CharacterCard = ({ user, character, currentCharacterIndex, setCurrentCharacterIndex, index, loadingIndex, setLoadingIndex}: 
+                        { user: User, character: Character, currentCharacterIndex: number | null, setCurrentCharacterIndex: (index: number) => void, index: number, loadingIndex: number | null, setLoadingIndex: (index: number | null) => void}) => {
 
     const handleButtonClick = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setLoadingIndex(index);
         await SelectCharacter(user, character, setCurrentCharacterIndex, index, setLoadingIndex);
+        //router.push(`/game?characterIndex=${index}`);
     };
 
     const buttonClass = `${currentCharacterIndex === index ? 'text-white shadow-xl shadow-white custom_bg-dark-gray hover:shadow-white' : 'text-gray-300 hover:text-gray-100 custom_bg-gray'} 
@@ -117,7 +118,7 @@ export default function Dashboard() {
                 {asideOpen && (
                     <aside className="flex w-72 flex-col space-y-2 custom_bg-gray p-2" style={{ height: '90.5vh' }}>
                         {/* Navigation links */}
-                        <Link href="/game" className='text-white text-center custom_bg-dark-gray rounded-md p-3 text-lg hover:text-orange-300'>Play</Link>
+                        <Link href={`/game?characterIndex=${currentCharacterIndex}`} className='text-white text-center custom_bg-dark-gray rounded-md p-3 text-lg hover:text-orange-300'>Play</Link>
                         <Link href="/" className='text-white text-center custom_bg-dark-gray rounded-md hover:text-orange-300'>Back</Link>
                     </aside>
                 )}
