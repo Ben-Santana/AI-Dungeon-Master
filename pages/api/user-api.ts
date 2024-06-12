@@ -1,22 +1,19 @@
 import clientPromise from '@/lib/mongo';
 import UserModel from '@/lib/mongo/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { connectToDatabase } from '@/lib/mongo/connectToDatabase';
+import { User } from '@/types/user';
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await connectToDatabase(); // Ensures that the connection is established before querying
+    
     try {
-        await clientPromise; // Ensure MongoDB is connected
-
-        const user = new UserModel({
-            characters: [],
-            currentCharacterIndex: 0
-        });
-
-        await user.save();
-
-        res.status(201).json(user);
+        const users: User[] = await UserModel.find({});
+        console.log('Fetched users:', users);
+        res.status(200).json(users);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'An error occurred' });
     }
 }

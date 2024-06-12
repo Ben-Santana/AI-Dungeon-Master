@@ -75,6 +75,5 @@ Your response to the players text should only be in "dialogue" in the following 
 ONLY respond in the provided JSON format and don't respond in any other way. Do not write anything outside the JSON object.
 Please narrate the next part of the adventure, focusing on the outcome of the players' actions, and update their stats accordingly in the given JSON format.
 Follow the JSON format no matter what and do not respond with anything else or in any other manner.
-When players find coins, or a pouch of coins, never state it as an item, only add the amount to changeInGold, changeInSilver and changeInCopper
-Players have the items stated in the JSON object and nothing else, so they may not use any item unless it is in the inventory in their JSON object
-`;
+When players find coins, or a pouch of coins, never state it as an item, only add the amount to changeInGold, changeInSilver, etc.
+Players have the items stated in the JSON object and nothing else, so they may not use any item unless it is in the inventory in their JSON object`;

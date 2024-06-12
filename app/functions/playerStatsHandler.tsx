@@ -49,7 +49,7 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                         copper: advent.coins.copper + stats.changeInCopper,
                     }
                     let newPlayerHealth: HitPoints = {
-                        currentHp: advent.hitPoints.currentHp + stats.changeInHeath,
+                        currentHp: Math.min(advent.hitPoints.currentHp + stats.changeInHeath, advent.hitPoints.maxHp),
                         maxHp: advent.hitPoints.maxHp
                     }
                     if (stats.newSpells) {

@@ -1,50 +1,58 @@
 'use client'
-import { Character } from '@/types/user';
+import { Character, User } from '@/types/user';
 import Link from 'next/link'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import React, { MouseEvent } from 'react';
 
-// const CharacterCards = () => {
-//     return <div className='grid grid-flow-row-dense grid-cols-3 grid-rows-2'>
-//         {user.characters.map((character: Character) => {
-//             let tempSelect = false
-//             if (character.adventurer.name == user.characters[user.currentCharacterIndex].adventurer.name) tempSelect = true;
-//             return <div className='col-span-1 row-span-1'>
-//                 <CharacterCard character={character} selected={tempSelect}></CharacterCard>
-//             </div>
-//         })}
-//     </div>
-// }
+const CharacterCards = ({users}: {users:User[]}) => {
+    if(users[0]) {
+         return <ul>
+                    {users[0].characters.map((c) => (
+                        <li>
+                            <CharacterCard character={c} user={users[0]} selected={false}></CharacterCard>
+                        </li>
+                    ))}
+                </ul>
+    }
+}
 
-// const CharacterCard = ({ character, selected }: { character: Character, selected: boolean }) => {
+const CharacterCard = ({ user, character, selected }: { user:User, character: Character, selected: boolean }) => {
 
-//     const handleButtonClick = ((e: MouseEvent<HTMLButtonElement>) => {
-//         e.preventDefault();
-//         SelectCharacter(character);
-//     });
+    const handleButtonClick = ((e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        SelectCharacter(user, character);
+    });
 
-//     const buttonClass = selected ?
-//         'custom_bg-light-beige p-2 m-2 rounded-md text-gray-800 border-2 border-white w-full' :
-//         'custom_bg-light-beige p-2 m-2 rounded-md text-gray-600 hover:text-gray-800 w-full';
+    const buttonClass = selected ?
+        'custom_bg-light-beige p-2 m-2 rounded-md text-gray-800 border-2 border-white w-full' :
+        'custom_bg-light-beige p-2 m-2 rounded-md text-gray-600 hover:text-gray-800 w-full';
 
-//     return (
-//         <button className={buttonClass} onClick={handleButtonClick}>
-//             <strong className='text-2xl'>{character.adventurer.name}</strong>
-//         </button>
-//     );
+    return (
+        <button className={buttonClass} onClick={handleButtonClick}>
+            <strong className='text-2xl'>{character.adventurer.name}</strong>
+        </button>
+    );
 
-// }
+}
 
-// const SelectCharacter = (character: Character) => {
-//     const index = user.characters.findIndex(c => c.adventurer.name === character.adventurer.name);
-//     if (index !== -1) user.currentCharacterIndex = index;
-// };
+const SelectCharacter = (user: User, character: Character) => {
+    const index = user.characters.findIndex(c => c.adventurer.name === character.adventurer.name);
+    if (index !== -1) user.currentCharacterIndex = index;
+};
 
 
 export default function Dashboard() {
     // State variables to replace AlpineJS functionality
     const [profileOpen, setProfileOpen] = useState(false);
     const [asideOpen, setAsideOpen] = useState(true);
+
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+      fetch('/api/user-api')
+      .then((response) => response.json())
+      .then((data) => setUsers(data));
+    }, []);
 
     return (
         <main className="min-h-screen w-full custom_bg-beige text-gray-700">
@@ -84,6 +92,9 @@ export default function Dashboard() {
                 <div className="w-full p-4">
                     {/* Content goes here */}
                     {/* <CharacterCards></CharacterCards> */}
+                    <div>
+                        <CharacterCards users={users}></CharacterCards>
+                    </div>
                 </div>
             </div>
         </main>
