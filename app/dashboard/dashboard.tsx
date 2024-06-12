@@ -3,44 +3,71 @@ import { Character, User } from '@/types/user';
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import React, { MouseEvent } from 'react';
+import axios from 'axios';
 
-const CharacterCards = ({users}: {users:User[]}) => {
-    if(users[0]) {
-         return <ul>
-                    {users[0].characters.map((c) => (
-                        <li>
-                            <CharacterCard character={c} user={users[0]} selected={false}></CharacterCard>
-                        </li>
-                    ))}
-                </ul>
+const CharacterCards = ({ users, currentCharacterIndex, setCurrentCharacterIndex, loadingIndex, setLoadingIndex}: { users: User[], currentCharacterIndex: number | null, setCurrentCharacterIndex: (index: number) => void , loadingIndex: number | null, setLoadingIndex: (index: number | null) => void}) => {
+
+    if (users[0]) {
+        return (
+            <div className='flex gap-3 h-52'>
+                {users[0].characters.map((c, index) => (
+                    <div key={c.adventurer.name} className='flex-1 hover:flex-5 transition-transform h-full'>
+                        <CharacterCard
+                            character={c}
+                            user={users[0]}
+                            currentCharacterIndex={currentCharacterIndex}
+                            setCurrentCharacterIndex={setCurrentCharacterIndex}
+                            index={index}
+                            loadingIndex={loadingIndex}
+                            setLoadingIndex={setLoadingIndex}
+                        />
+                    </div>
+                ))}
+            </div>
+        );
     }
-}
 
-const CharacterCard = ({ user, character, selected }: { user:User, character: Character, selected: boolean }) => {
+    return null;
+};
+const CharacterCard = ({ user, character, currentCharacterIndex, setCurrentCharacterIndex, index, loadingIndex, setLoadingIndex }: 
+                        { user: User, character: Character, currentCharacterIndex: number | null, setCurrentCharacterIndex: (index: number) => void, index: number, loadingIndex: number | null, setLoadingIndex: (index: number | null) => void }) => {
 
-    const handleButtonClick = ((e: MouseEvent<HTMLButtonElement>) => {
+    const handleButtonClick = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        SelectCharacter(user, character);
-    });
+        setLoadingIndex(index);
+        await SelectCharacter(user, character, setCurrentCharacterIndex, index, setLoadingIndex);
+    };
 
-    const buttonClass = selected ?
-        'custom_bg-light-beige p-2 m-2 rounded-md text-gray-800 border-2 border-white w-full' :
-        'custom_bg-light-beige p-2 m-2 rounded-md text-gray-600 hover:text-gray-800 w-full';
+    const buttonClass = `${currentCharacterIndex === index ? 'text-white shadow-xl shadow-white custom_bg-dark-gray hover:shadow-white' : 'text-gray-300 hover:text-gray-100 custom_bg-gray'} 
+                            p-2 m-2 rounded-md transition-all shadow-md hover:shadow-xl w-full h-full text-2xl hover:text-3xl
+                            ${loadingIndex === index ? 'animate-pulse' : ''}`;
 
     return (
         <button className={buttonClass} onClick={handleButtonClick}>
-            <strong className='text-2xl'>{character.adventurer.name}</strong>
+            <strong className=''>{character.adventurer.name}</strong>
         </button>
     );
-
 }
 
-const SelectCharacter = (user: User, character: Character) => {
-    const index = user.characters.findIndex(c => c.adventurer.name === character.adventurer.name);
-    if (index !== -1) user.currentCharacterIndex = index;
+const SelectCharacter = async (user: User, character: Character, setCurrentCharacterIndex: (index: number) => void, index: number, setLoadingIndex: (index: number | null) => void) => {
+    const characterIndex = user.characters.findIndex(c => c.adventurer.name === character.adventurer.name);
+    if (characterIndex !== -1) {
+        user.currentCharacterIndex = characterIndex;
+
+        try {
+            await axios.put('/api/update-character', {
+                userId: user._id,
+                characterIndex: characterIndex
+            });
+            setCurrentCharacterIndex(characterIndex);  // Update local state after successful API call
+            console.log('Character updated successfully');
+        } catch (error) {
+            console.error('Error updating character:', error);
+        } finally {
+            setLoadingIndex(null); // Reset loading state
+        }
+    }
 };
-
-
 export default function Dashboard() {
     // State variables to replace AlpineJS functionality
     const [profileOpen, setProfileOpen] = useState(false);
@@ -48,10 +75,17 @@ export default function Dashboard() {
 
     const [users, setUsers] = useState<User[]>([]);
 
+    const [currentCharacterIndex, setCurrentCharacterIndex] = useState<number | null>(users[0]?.currentCharacterIndex ?? null);
+    const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+
     useEffect(() => {
       fetch('/api/user-api')
       .then((response) => response.json())
-      .then((data) => setUsers(data));
+      .then((data) => {
+                setUsers(data);
+                setCurrentCharacterIndex(data[0]?.currentCharacterIndex ?? null);
+            }
+        );
     }, []);
 
     return (
@@ -90,10 +124,8 @@ export default function Dashboard() {
 
                 {/* Main content */}
                 <div className="w-full p-4">
-                    {/* Content goes here */}
-                    {/* <CharacterCards></CharacterCards> */}
                     <div>
-                        <CharacterCards users={users}></CharacterCards>
+                        <CharacterCards users={users} currentCharacterIndex={currentCharacterIndex} setCurrentCharacterIndex={setCurrentCharacterIndex} loadingIndex={loadingIndex} setLoadingIndex={setLoadingIndex}></CharacterCards>
                     </div>
                 </div>
             </div>
