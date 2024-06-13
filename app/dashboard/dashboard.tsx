@@ -2,6 +2,11 @@
 import WizardIcon from '../components/icons/WizardIcon';
 import ArtificerIcon from '../components/icons/ArtificerIcon';
 import KnightIcon from '../components/icons/KnightIcon';
+import MonkIcon from '../components/icons/MonkIcon';
+import RogueIcon from '../components/icons/RogueIcon';
+import BardIcon from '../components/icons/BardIcon';
+import DruidIcon from '../components/icons/DruidIcon';
+
 import { Character, User } from '@/types/user';
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
@@ -43,16 +48,20 @@ const CharacterCard = ({ user, character, currentCharacterIndex, setCurrentChara
     };
 
     const buttonClass = `${currentCharacterIndex === index ? 'text-white shadow-2xl shadow-white border-4 border-orange-500 custom_bg-dark-gray hover:shadow-white' : 'text-gray-300 hover:text-gray-100 custom_bg-gray'} 
-                            p-2 m-2 rounded-md transition-all shadow-md hover:shadow-xl w-full h-full text-2xl hover:text-3xl grid grid-flow-row-dense grid-cols-1 grid-rows-4
+                            p-2 m-2 rounded-md transition-all shadow-md hover:shadow-xl w-full text-2xl hover:text-3xl grid grid-flow-row-dense grid-cols-1 grid-rows-4
                             ${loadingIndex === index ? 'animate-pulse' : ''}`;
 
     return (
         <button className={buttonClass} onClick={handleButtonClick}>
             <strong className='col-span-1 row-span-1'>{character.adventurer.name}</strong>
-            <div className={`col-span-1 row-span-3 h-full w-full custom_bg-gray custom_shadow-inner rounded-md`}>
+            <div className={`col-span-1 row-span-3 w-full custom_bg-gray custom_shadow-inner rounded-md`}>
                 {character.adventurer.class === 'wizard' ? <WizardIcon></WizardIcon>: 
                  character.adventurer.class === 'knight' ? <KnightIcon></KnightIcon>:
                  character.adventurer.class === 'artificer' ? <ArtificerIcon></ArtificerIcon>:
+                 character.adventurer.class === 'druid' ? <DruidIcon></DruidIcon>:
+                 character.adventurer.class === 'bard' ? <BardIcon></BardIcon>:
+                 character.adventurer.class === 'monk' ? <MonkIcon></MonkIcon>:
+                 character.adventurer.class === 'rogue' ? <RogueIcon></RogueIcon>:
                  ''}
             </div>
         </button>
