@@ -1,4 +1,7 @@
 'use client'
+import WizardIcon from '../components/icons/WizardIcon';
+import ArtificerIcon from '../components/icons/ArtificerIcon';
+import KnightIcon from '../components/icons/KnightIcon';
 import { Character, User } from '@/types/user';
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
@@ -39,13 +42,19 @@ const CharacterCard = ({ user, character, currentCharacterIndex, setCurrentChara
         //router.push(`/game?characterIndex=${index}`);
     };
 
-    const buttonClass = `${currentCharacterIndex === index ? 'text-white shadow-xl shadow-white custom_bg-dark-gray hover:shadow-white' : 'text-gray-300 hover:text-gray-100 custom_bg-gray'} 
-                            p-2 m-2 rounded-md transition-all shadow-md hover:shadow-xl w-full h-full text-2xl hover:text-3xl
+    const buttonClass = `${currentCharacterIndex === index ? 'text-white shadow-2xl shadow-white border-4 border-orange-500 custom_bg-dark-gray hover:shadow-white' : 'text-gray-300 hover:text-gray-100 custom_bg-gray'} 
+                            p-2 m-2 rounded-md transition-all shadow-md hover:shadow-xl w-full h-full text-2xl hover:text-3xl grid grid-flow-row-dense grid-cols-1 grid-rows-4
                             ${loadingIndex === index ? 'animate-pulse' : ''}`;
 
     return (
         <button className={buttonClass} onClick={handleButtonClick}>
-            <strong className=''>{character.adventurer.name}</strong>
+            <strong className='col-span-1 row-span-1'>{character.adventurer.name}</strong>
+            <div className={`col-span-1 row-span-3 h-full w-full custom_bg-gray custom_shadow-inner rounded-md`}>
+                {character.adventurer.class === 'wizard' ? <WizardIcon></WizardIcon>: 
+                 character.adventurer.class === 'knight' ? <KnightIcon></KnightIcon>:
+                 character.adventurer.class === 'artificer' ? <ArtificerIcon></ArtificerIcon>:
+                 ''}
+            </div>
         </button>
     );
 }
@@ -118,8 +127,8 @@ export default function Dashboard() {
                 {asideOpen && (
                     <aside className="flex w-72 flex-col space-y-2 custom_bg-gray p-2" style={{ height: '90.5vh' }}>
                         {/* Navigation links */}
-                        <Link href={`/game?characterIndex=${currentCharacterIndex}`} className='text-white text-center custom_bg-dark-gray rounded-md p-3 text-lg hover:text-orange-300'>Play</Link>
-                        <Link href="/" className='text-white text-center custom_bg-dark-gray rounded-md hover:text-orange-300'>Back</Link>
+                        <Link href={`/game?characterIndex=${currentCharacterIndex}`} className='text-white text-center custom_bg-dark-gray rounded-md p-3 text-xl hover:text-orange-300'><p className="text-3xl">Play</p></Link>
+                        <Link href="/" className='text-white text-center custom_bg-dark-gray rounded-md hover:text-orange-300'><p className="text-lg">Back</p></Link>
                     </aside>
                 )}
 

@@ -11,6 +11,17 @@ const SideBarSpells = ({ players }: { players: Adventurer[] }) => {
     </div>
 }
 
+const Title = ({ players }: { players: Adventurer[] }) => {
+    const styles: string = `${ players[0].class === 'knight' ? 'bg-zinc-600': ''}
+                            ${ players[0].class === 'wizard' ? 'bg-violet-950': ''}
+                            ${ players[0].class === 'artificer' ? 'bg-amber-900': ''}`;
+    
+
+    return <div className={`${styles} rounded-md p-3 m-1 text-left text-center custom_shadow-inner`} >
+        <strong className="text-white text-3xl">{players[0].name}</strong>
+    </div>
+}
+
 const SideBarSkills = ({ players }: { players: Adventurer[] }) => {
     return <div className="custom_bg-gray rounded-sm p-3 m-1 text-left" >
         {players[0].skills.map((skill: Skill) =>
@@ -91,7 +102,7 @@ const SideBarHealth = ({ players }: { players: Adventurer[] }) => {
         <strong className="z-20 text-2xl text-gray-100 h-full col-span-1">{player.hitPoints.currentHp}/{player.hitPoints.maxHp}</strong>
         <div className="w-full relative col-span-5 row-span-1">
             <div className='z-0 absolute top-1 left-0 h-4/5 w-full custom_bg-dark-gray rounded-lg'></div>
-            <div className='z-0 absolute top-1 left-0 h-4/5 custom_healthbar-width custom_bg-red rounded-lg'></div>
+            <div className='z-0 absolute top-1 left-0 h-4/5 custom_healthbar-width custom_bg-red custom_shadow-inner rounded-lg'></div>
         </div>
     </div >
 }
@@ -131,6 +142,7 @@ const SideBarNav = () => {
 
 export default function SideBar({ players }: { players: Adventurer[] }) {
     return <div className="text-center overflow-auto overscroll-auto scrollbar-thumb:!rounded h-full no-scrollbar custom_enchanted-font ">
+        <Title players={players}></Title>
         <SideBarHealth players={players}></SideBarHealth>
         <strong className="text-white text-3xl">Spells</strong>
         <SideBarSpells players={players}></SideBarSpells>
