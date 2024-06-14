@@ -62,7 +62,7 @@ const GptMessageMemorySchema = new mongoose.Schema({
 const AdventurerSchema = new mongoose.Schema<Adventurer>({
     name: { type: String, required: true },
     race: { type: String, required: true },
-    class: { type: String, enum: ["wizard", "knight", "artificer", ""], required: true },
+    class: { type: String, required: true },
     level: { type: Number, required: true },
     stats: { type: StatsSchema, required: true },
     hitPoints: { type: HitPointsSchema, required: true },

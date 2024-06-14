@@ -1,4 +1,8 @@
 import { Adventurer, Coins, HitPoints, Item, Skill, Spell } from "@/types/adventurer";
+import { User } from "@/types/user";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface GptStatChanges {
     "name": string,
@@ -29,7 +33,7 @@ interface GptStatChanges {
     ]
 }
 
-export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string, setErrorMsg: React.Dispatch<React.SetStateAction<string>>, setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>) => {
+export const updatePlayerStats = async (adventurers: Adventurer[], statChanges: string, setErrorMsg: React.Dispatch<React.SetStateAction<string>>, setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>, user: User, characterIndex: number) => {
     let updatedAdventurers: Adventurer[] = [];
     try {
         let parsedStatChanges = JSON.parse(statChanges);
@@ -96,7 +100,23 @@ export const updatePlayerStats = (adventurers: Adventurer[], statChanges: string
                 }
             });
         });
+
+        // Make API call to update player stats in the database
+        if(user) {
+            try {
+                
+                await axios.put('/api/update-character', {
+                    userId: user._id, // Pass the appropriate user ID
+                    characterIndex: characterIndex, // Pass the appropriate character index
+                    updateData: updatedAdventurers[0] // Pass the updated adventurers data
+                }); 
+            } catch(error) {
+                console.error("Unable to update character: ", error);
+            }
+        } else {
+            console.error("Unable to find user to update");
+        }
     } catch (error) {
-        setErrorMsg(`Error when parsing player stats!`);
+        console.error(`Error when parsing player stats!: `, error);
     }
 }

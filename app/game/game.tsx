@@ -3,8 +3,9 @@ import { Adventurer, Spell } from "@/types/adventurer";
 import GameChat from "../components/chat/chat";
 import { memo, useState } from "react";
 import SideBar from "../components/stats/sidebar";
+import { User } from "@/types/user";
 
-export default function Game({ adventurer }: { adventurer: Adventurer }) {
+export default function Game({adventurer }: { adventurer: Adventurer }) {
     const [players, setPlayers] = useState<Adventurer[]>([adventurer]);
 
     return (
@@ -13,7 +14,7 @@ export default function Game({ adventurer }: { adventurer: Adventurer }) {
                 <SideBar players={players}></SideBar>
             </div>
             <div className="basis-3/4 px-12 py-6 custom_bg-gray">
-                <GameChat adventurers={players} setPlayers={setPlayers} ></GameChat>
+                <GameChat adventurers={players} setPlayers={setPlayers}></GameChat>
             </div>
         </div>
     );

@@ -16,6 +16,6 @@ export const connectToDatabase = async () => {
     mongoose.connection.on('connected', () => console.log('connected'));
 
     return mongoose.connect(MONGO_URI, {
-        dbName: 'Users', // Set your database name here
+        dbName: 'Users',
     });
 };

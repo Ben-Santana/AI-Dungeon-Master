@@ -3,6 +3,7 @@ import { updatePlayerStats } from "./playerStatsHandler";
 import { Adventurer } from "@/types/adventurer";
 import { updateTokenCount } from "./tokenCountHandler";
 import { FormattedInput } from "../components/chat/chat";
+import { User } from "@/types/user";
 
 interface Message {
     role: "user" | "system" | "assistant";
@@ -19,7 +20,9 @@ export const callGptApi = async (playerInput: string,
     adventurers: Adventurer[],
     setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>,
     messages: Message[],
-    setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+    user: User,
+    characterIndex: number
 ) => {
 
     const setTotalInput = (chatInput: string) => {
@@ -62,7 +65,7 @@ export const callGptApi = async (playerInput: string,
 
                 //if there are any stat changes, update player stats
                 if (parsedResponse.statChanges) {
-                    updatePlayerStats(adventurers, JSON.stringify(parsedResponse.statChanges), setErrorMsg, setPlayers);
+                    updatePlayerStats(adventurers, JSON.stringify(parsedResponse.statChanges), setErrorMsg, setPlayers, user, characterIndex);
                 }
 
                 //Message for chat history / visual

@@ -1,8 +1,10 @@
 'use client';
 import { Adventurer } from "../../../types/adventurer";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { callGptApi } from "../../functions/apiCallHandler";
 import useAutosizeTextArea from "./useAutosizeTextArea";
+import { User } from "@/types/user";
+import { useSearchParams } from "next/navigation";
 
 interface Message {
   role: "user" | "system" | "assistant";
@@ -51,14 +53,27 @@ const LoadingMessage = () => {
   )
 }
 
-export default function GameChat({ adventurers, setPlayers }: { adventurers: Adventurer[], setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>> }) {
+export default function GameChat({ adventurers, setPlayers }: { adventurers: Adventurer[], setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>}) {
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInputText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [party, setParty] = useState(adventurers);
+  const [user, setUser] = useState<User>();
+
+  const searchParams = useSearchParams();
+  const characterIndex: number = Number(searchParams?.get('characterIndex') ?? null);
+
+  //fetch user from mongodb database
+  useEffect(() => {
+      fetch('/api/user-api')
+      .then((response) => response.json())
+      .then((data) => {
+                setUser(data[0]);
+            }
+        );
+    }, []);
 
   const buttonCallSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,9 +93,10 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
 
     //add inputed message to chat screen / history
     setMessages([...messages, chatMsg]);
-
+    
     //call api, input both types of msg
-    callGptApi(input, setLoading, setErrorMsg, adventurers, setPlayers, messages, setMessages);
+    if(user)
+    callGptApi(input, setLoading, setErrorMsg, adventurers, setPlayers, messages, setMessages, user, characterIndex);
   }
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);

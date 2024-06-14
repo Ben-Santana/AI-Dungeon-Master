@@ -76,12 +76,13 @@ const SelectCharacter = async (user: User, character: Character, setCurrentChara
         try {
             await axios.put('/api/update-character', {
                 userId: user._id,
-                characterIndex: characterIndex
+                newCharacterIndex: characterIndex
             });
             setCurrentCharacterIndex(characterIndex);  // Update local state after successful API call
             console.log('Character updated successfully');
         } catch (error) {
             console.error('Error updating character:', error);
+            console.log("Error updating character: ", error);
         } finally {
             setLoadingIndex(null); // Reset loading state
         }
