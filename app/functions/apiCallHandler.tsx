@@ -1,9 +1,10 @@
-import { addToGptMemory, gptMessageMemories } from "./gptMemoryHandler";
+import { addToGptMemory } from "./gptMemoryHandler";
 import { updatePlayerStats } from "./playerStatsHandler";
 import { Adventurer } from "@/types/adventurer";
 import { updateTokenCount } from "./tokenCountHandler";
 import { FormattedInput } from "../components/chat/chat";
 import { User } from "@/types/user";
+import { cursorTo } from "readline";
 
 interface Message {
     role: "user" | "system" | "assistant";
@@ -17,8 +18,7 @@ let totalInput: FormattedInput = ({ dialogue: [], playerStats: [], d20: 1 });
 export const callGptApi = async (playerInput: string,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setErrorMsg: React.Dispatch<React.SetStateAction<string>>,
-    adventurers: Adventurer[],
-    setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>,
+    adventurer: Adventurer,
     messages: Message[],
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
     user: User,
@@ -26,15 +26,15 @@ export const callGptApi = async (playerInput: string,
 ) => {
 
     const setTotalInput = (chatInput: string) => {
-        totalInput.dialogue = [{ player: (adventurers[0].name), text: chatInput }];
-        totalInput.playerStats = adventurers;
+        totalInput.dialogue = [{ player: (adventurer.name), text: chatInput }];
+        totalInput.playerStats = [adventurer];
         totalInput.d20 = Math.floor(Math.random() * 20) + 1
     }
 
     const playerMsg: Message = {
         content: playerInput,
         role: "user",
-        name: "Player",
+        name: user.characters[characterIndex].adventurer.name,
         key: (messages.length + 1)
     }
 
@@ -53,7 +53,7 @@ export const callGptApi = async (playerInput: string,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                prompt: [...gptMessageMemories, { role: "user", content: JSON.stringify(totalInput) }]
+                prompt: [...user.characters[characterIndex].chatHistory, { role: "user", content: JSON.stringify(totalInput) }]
             })
         }).then((response) => response.json());
 
@@ -63,11 +63,6 @@ export const callGptApi = async (playerInput: string,
                 let parsedResponse = JSON.parse(response.text);
                 let dialogueResponse = parsedResponse.dialogue;
 
-                //if there are any stat changes, update player stats
-                if (parsedResponse.statChanges) {
-                    updatePlayerStats(adventurers, JSON.stringify(parsedResponse.statChanges), setErrorMsg, setPlayers, user, characterIndex);
-                }
-
                 //Message for chat history / visual
                 const botMessage: Message = {
                     role: "assistant",
@@ -76,17 +71,22 @@ export const callGptApi = async (playerInput: string,
                     key: (messages.length + 2)
                 }
 
+                //if there are any stat changes, update player stats
+                if (parsedResponse.statChanges) {
+                    updatePlayerStats(adventurer, JSON.stringify(parsedResponse.statChanges), user, characterIndex);
+                }
+
                 //add to chat history
                 setMessages([...messages, playerMsg, botMessage]);
                 console.log(response.text)
-                addToGptMemory(playerInput, response.text);
+                addToGptMemory(user, characterIndex, playerInput, response.text);
 
                 setErrorMsg("");
 
-                updateTokenCount();
+                //updateTokenCount();
 
             } catch (error) {
-                setErrorMsg(`Error when parsing response! : ${error}`)
+                console.error("Error when parsing response: ", error);
             }
         }
     } catch (error) {

@@ -5,6 +5,8 @@ import { callGptApi } from "../../functions/apiCallHandler";
 import useAutosizeTextArea from "./useAutosizeTextArea";
 import { User } from "@/types/user";
 import { useSearchParams } from "next/navigation";
+import { GptMessageMemory } from "@/app/functions/gptMemoryHandler";
+import { Messages } from "openai/resources/beta/threads/messages/messages";
 
 interface Message {
   role: "user" | "system" | "assistant";
@@ -53,7 +55,45 @@ const LoadingMessage = () => {
   )
 }
 
-export default function GameChat({ adventurers, setPlayers }: { adventurers: Adventurer[], setPlayers: React.Dispatch<React.SetStateAction<Adventurer[]>>}) {
+const RemoveSystemMessage = (memories: Message[]) => {
+  let output: Message[] = [];
+  memories.forEach((msg: Message, index: number)=>{
+    if(index > 0) output.push(msg);
+  });
+
+  return output;
+}
+
+const MemoriesToMessages = (user: User, memories: GptMessageMemory[]) => {
+  let messages: Message[] = [];
+
+  memories.forEach((memory: GptMessageMemory) => {
+    let name: string = "";
+    let content: string = memory.content;
+
+    if(memory.role === "user") {
+      name = user.characters[user.currentCharacterIndex].adventurer.name;
+    } else {
+      name = "Dungeon Master";
+    }
+
+    if(memory.role === "assistant") {
+      content = JSON.parse(content).dialogue;
+    }
+
+    const newMessage: Message = {
+      role: memory.role,
+      name: name,
+      content: content,
+      key: messages.length + 1
+    }
+    messages.push(newMessage);
+  });
+
+  return messages;
+}
+
+export default function GameChat({ adventurer }: { adventurer: Adventurer }) {
   //interface
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -75,6 +115,12 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
         );
     }, []);
 
+    useEffect(() => {
+      if (user && user.characters && user.characters[user.currentCharacterIndex]) {
+        setMessages(MemoriesToMessages(user, user.characters[user.currentCharacterIndex].chatHistory));
+      }
+    }, [user]);
+
   const buttonCallSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
     submitText();
@@ -82,10 +128,15 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
 
   const submitText = () => {
 
+    let name = "Player";
+    if(user && user.characters) {
+      name = user?.characters[user.currentCharacterIndex].adventurer.name;
+    }
+
     const chatMsg: Message = {
       content: input,
       role: "user",
-      name: "Player",
+      name: name,
       key: (messages.length + 1)
     }
 
@@ -96,7 +147,7 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
     
     //call api, input both types of msg
     if(user)
-    callGptApi(input, setLoading, setErrorMsg, adventurers, setPlayers, messages, setMessages, user, characterIndex);
+    callGptApi(input, setLoading, setErrorMsg, adventurer, messages, setMessages, user, characterIndex);
   }
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -107,10 +158,10 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
     setInputText(val);
   }
 
-  ///TODO: find out how to not put type any here
   const onKeyPress = (e: any) => {
     if (e.key == 'Enter') {
       submitText();
+      setInputText("");
     }
   }
 
@@ -141,8 +192,8 @@ export default function GameChat({ adventurers, setPlayers }: { adventurers: Adv
           </div>
         </div>
         <div className="flex-initial h-full border-gray-300 custom_bg-beige rounded-lg overflow-auto overscroll-auto scrollbar-thumb:!rounded no-scrollbar">
-          {messages.map((msg: Message) =>
-            <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} />
+          {RemoveSystemMessage(messages).map((msg: Message) =>
+              <ChatMessage content={msg.content} role={msg.role} name={msg.name} key={msg.key} /> 
           )}
           {loading
             ? <LoadingMessage />
