@@ -5,7 +5,7 @@ AI Dungeon Master is a web-based application that leverages OpenAI's GPT API to 
 ## Features
 
 - **AI-Powered Dungeon Master**: Utilizes OpenAI's GPT API to generate dynamic narratives and respond to player inputs in real-time.
-- **Interactive Storytelling**: Engage in a rich, text-based adventure with AI-generated scenarios, characters, and dialogues.
+- **Interactive Storytelling**: A live sidebar keeps track of your health, inventory, spells, abilities, and wealth accordingly as the story progresses.
 - **Single-Player Experience**: Designed for solo players seeking a D&D experience without the need for a human Dungeon Master.
 
 ## Installation
